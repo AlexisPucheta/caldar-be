@@ -25,3 +25,12 @@ app.get('/api/technician/:id', (req, res) => {
     }
 });
 
+//technician-controller.deleteTechnicianById
+app.delete('/api/technician/:id', (req, res) => {
+    const found = technicians.some(technician => technician._id.$oid === req.params.id);
+    if (found) {
+        res.json({msg:`Technician with id ${req.params.id} was deleted`, technicians: technicians.filter(technician => technician._id.$oid !== req.params.id)});
+    } else {
+        res.json({msg:`No Technician with id: ${req.params.id}`});
+    }
+});
