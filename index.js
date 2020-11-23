@@ -10,22 +10,41 @@ app.listen(PORT, () => console.log(`Server started on port ${PORT}`));
 
 const technicians = require('./data/technician.json');
 
+app.use(express.json());
 //technician-controller.getTechniciansAll and getTechniciansByAttribute
 app.get('/api/technician', (req, res) => {
     for (const key in req.query) {
-        if(key ==='full_name'){
-            res.json(technicians.filter(technician => technician.full_name === req.query[key]));
+        if (key ==='full_name') {
+            return res.json(technicians.filter(technician => technician.full_name === req.query[key]));
         } else if (key ==='phone') {
-            res.json(technicians.filter(technician => technician.phone === req.query[key]));
+            return res.json(technicians.filter(technician => technician.phone === req.query[key]));
         } else if (key === 'birthday') {
-            res.json(technicians.filter(technician => technician.birthday === req.query[key]));
+            return res.json(technicians.filter(technician => technician.birthday === req.query[key]));
         } else if (key === 'email') {
-            res.json(technicians.filter(technician => technician.email === req.query[key]));
+            return res.json(technicians.filter(technician => technician.email === req.query[key]));
         } else if (key === 'boilers') {
-            res.json(technicians.filter(technician => technician.boilers.$oid == req.query[key]));
-        } 
-        else if (key !== null){
-            res.json({msg:`Dont Exist that attribute: ${key}`});
+            for (var i = 0 ; i < technicians.length; i++){
+                var found = technicians[i].boilers.some(boiler => boiler.$oid === req.query[key]);
+                if (found) {
+                    return res.json(technicians[i]);
+                }
+            }
+            if (!found) {
+                return res.json({msg: `Don't exist that boiler: ${req.query[key]}`})
+            }
+        } else if (key === 'types') {
+            for (var i = 0 ; i < technicians.length; i++){
+                var found = technicians[i].types.some(type => type.$oid === req.query[key]);
+                if (found) {
+                    return res.json(technicians[i]);
+                }
+            }
+            if (!found) {
+                return res.json({msg: `Don't exist that boiler: ${req.query[key]}`})
+            }
+        }
+        else if (key !== null) {
+           return res.json({msg:`Dont Exist that attribute: ${key}`});
         }
       }
       res.json(technicians)
