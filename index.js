@@ -10,9 +10,25 @@ app.listen(PORT, () => console.log(`Server started on port ${PORT}`));
 
 const technicians = require('./data/technician.json');
 
-//technician-controller.getTechniciansAll
+//technician-controller.getTechniciansAll and getTechniciansByAttribute
 app.get('/api/technician', (req, res) => {
-    res.json(technicians);
+    for (const key in req.query) {
+        if(key ==='full_name'){
+            res.json(technicians.filter(technician => technician.full_name === req.query[key]));
+        } else if (key ==='phone') {
+            res.json(technicians.filter(technician => technician.phone === req.query[key]));
+        } else if (key === 'birthday') {
+            res.json(technicians.filter(technician => technician.birthday === req.query[key]));
+        } else if (key === 'email') {
+            res.json(technicians.filter(technician => technician.email === req.query[key]));
+        } else if (key === 'boilers') {
+            res.json(technicians.filter(technician => technician.boilers.$oid == req.query[key]));
+        } 
+        else if (key !== null){
+            res.json({msg:`Dont Exist that attribute: ${key}`});
+        }
+      }
+      res.json(technicians)
 });
 
 //technician-controller.getTechnicianById
@@ -34,3 +50,5 @@ app.delete('/api/technician/:id', (req, res) => {
         res.json({msg:`No Technician with id: ${req.params.id}`});
     }
 });
+
+
