@@ -1,7 +1,5 @@
 const express = require('express');
-
 const router = express.Router();
-
 const companies = requiere ('../data/company.json');
 
 /* company-controller.getAllCompanies */
