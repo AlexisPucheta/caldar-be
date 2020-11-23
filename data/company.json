@@ -1,0 +1,51 @@
+[
+    {
+        "_id":{"$oid":"5fbbf11dfc13ae100d000000"},
+        "name":"Manon",
+        "buildings":[
+            {"$oid":"5fbbf11dfc13ae100d000001"},
+            {"$oid":"5fbbf11dfc13ae100d000002"},
+            {"$oid":"5fbbf11dfc13ae100d000003"}
+            ]
+    },
+
+    {
+        "_id":{"$oid":"5fbbf11dfc13ae100d000004"},
+        "name":"Katleen",
+        "buildings":[
+            {"$oid":"5fbbf11dfc13ae100d000005"},
+            {"$oid":"5fbbf11dfc13ae100d000006"},
+            {"$oid":"5fbbf11dfc13ae100d000007"}
+            ]
+    },
+
+    {
+        "_id":{"$oid":"5fbbf11dfc13ae100d000008"},
+        "name":"Dino",
+        "buildings":[
+            {"$oid":"5fbbf11dfc13ae100d000009"},
+            {"$oid":"5fbbf11dfc13ae100d00000a"},
+            {"$oid":"5fbbf11dfc13ae100d00000b"}
+        ]
+    },
+
+    {
+        "_id":{"$oid":"5fbbf11dfc13ae100d00000c"},
+        "name":"Liv",
+        "buildings":[
+            {"$oid":"5fbbf11dfc13ae100d00000d"},
+            {"$oid":"5fbbf11dfc13ae100d00000e"},
+            {"$oid":"5fbbf11dfc13ae100d00000f"}
+        ]
+    },
+
+    {
+        "_id":{"$oid":"5fbbf11dfc13ae100d000010"},
+        "name":"Conny",
+        "buildings":[
+            {"$oid":"5fbbf11dfc13ae100d000011"},
+            {"$oid":"5fbbf11dfc13ae100d000012"},
+            {"$oid":"5fbbf11dfc13ae100d000013"}
+        ]
+    }
+]
