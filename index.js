@@ -10,7 +10,6 @@ app.listen(PORT, () => console.log(`Server started on port ${PORT}`));
 
 const technicians = require('./data/technician.json');
 
-app.use(express.json());
 //technician-controller.getTechniciansAll and getTechniciansByAttribute
 app.get('/api/technician', (req, res) => {
     for (const key in req.query) {
