@@ -10,11 +10,6 @@ app.listen(PORT, () => console.log(`Server started on port ${PORT}`));
 
 const boilerType = require('./data/boiler-type');
 
-/*
-// Controller getAllBoilerType
-app.get('/api/boiler/type', (req, res) => res.json(boilerType));
-*/
-
 // Controller getBoilerTypeById
 app.get('/api/boiler/type/:id', (req, res) => {
     const founded = boilerType.some(boilerType => {
