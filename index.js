@@ -38,7 +38,7 @@ app.delete('/api/boiler/type/:id', (req, res) => {
 });
 
 
-//technician-controller.getTechniciansAll and getTechniciansByAttribute
+//Controller getAllBoilerType and getBoilerTypeById
 app.get('/api/boiler/type', (req, res) => {
     for (const content in req.query) {
         if (content === 'desc') {
