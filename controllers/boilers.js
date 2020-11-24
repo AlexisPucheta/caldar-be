@@ -12,17 +12,16 @@ const boilers = require("../data/boilers.json");
 const idFilter = (req) => (boiler) => boiler._id.$oid === (req.params._id);
 
 //Get all boilers
-router.get("/", (req, res) => res.json(boilers));
-
-//Get boilers by type (specific resource)
-router.get("/type/:type", (req, res) => {
-  const found = boilers.some(boiler => boiler.type.$oid === (req.params.type));
-
-  if (found) {
-    res.json(boilers.filter(boiler => boiler.type.$oid === (req.params.type)));
-  } else {
-    res.status(4000).json({ msg: `No boilers with the type of ${req.params.type}` });
-  }
+router.get("/", (req, res) => {
+  
+  
+  switch (Object.keys(req.query)[0]) {
+    case "name":
+      return res.send (boilers.filter(boiler => boiler["name"].includes(req.query.name))); 
+    case "type":
+      return res.send (boilers.filter(boiler => boiler["type"].$oid.includes(req.query.type)));  
+    default: return res.json(boilers);
+  }  
 });
 
 //Get boilers by ID

@@ -1,10 +1,9 @@
 // Declarations
 const express = require('express');
 const app = express();
-
+const boilerController = require("./controllers/boilers");
 // Boilers API Routes
-app.use("/boilers", require("./controllers/boilers"));
-
+app.use('/api/boiler', boilerController);
 const PORT = process.env.PORT || 4000;
 const buildings = require('./data/building.json');
 
