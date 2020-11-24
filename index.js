@@ -1,5 +1,3 @@
-//console.log('hi');
-
 const express = require('express');
 
 const app = express();
@@ -32,12 +30,11 @@ app.delete('/api/boiler/type/:id', (req, res) => {
     }
 });
 
-
 //Controller getAllBoilerType and getBoilerTypeById
 app.get('/api/boiler/type', (req, res) => {
     for (const content in req.query) {
         if (content === 'desc') {
-            if (boilerType.some(boilerType => boilerType.id.desc === req.query[content])) {
+            if (boilerType.some(boilerType => boilerType.desc === req.query[content])) {
                 return res.json(boilerType.filter(boilerType => boilerType.desc === req.query[content]));
             }
             else {
