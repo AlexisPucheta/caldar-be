@@ -2,12 +2,17 @@
 const express = require('express');
 const app = express();
 const boilerController = require("./controllers/boilers");
+
 // Boilers API Routes
 app.use('/api/boiler', boilerController);
 const PORT = process.env.PORT || 4000;
+app.use('/companies', require('./controllers/companies'));
+app.listen(PORT, () => console.log(`Server started on port ${PORT}`));
+
 //Require data.json
 const buildings = require('./data/building.json');
 const technicians = require('./data/technician.json');
+
 // Server listener
 app.listen(PORT, () => console.log(`Server started on port ${PORT}`));
 
