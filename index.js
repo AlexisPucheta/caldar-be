@@ -1,20 +1,18 @@
 // Declarations
 const express = require('express');
 const app = express();
-//require your controller
+//require your controller BORRAR!
 const boilerController = require("./controllers/boilers");
-const technicianController = require("./controllers/technician");
 //Router
 const router = require('./routes');
 //Port
 const PORT = process.env.PORT || 4000;
 
-// API Routes
+// API Routes BORRAR!
 //app.use('/api/boiler', boilerController);
-//app.use('/api/technician', technicianController);
 //app.use('/companies', require('./controllers/companies'));
 
-// Require data.json
+// Require data.json BORRAR!
 const buildings = require('./data/building.json');
 const boilerType = require('./data/boiler-type');
 
@@ -22,6 +20,8 @@ app.use(router);
 // Server listener
 app.listen(PORT, () => console.log(`Server started on port ${PORT}`));
 
+//QUITAR TODO DE ACA HACIA ABAJO!
+/*
 // --------
 // REST API
 // --------
@@ -139,3 +139,4 @@ app.get('/api/boiler/type', (req, res) => {
     }
     res.json(boilerType);
 });
+*/
