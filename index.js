@@ -1,17 +1,15 @@
 
-=======
 // Declarations
 const express = require('express');
 const app = express();
 const boilerController = require("./controllers/boilers");
-
-// Boilers API Routes
-app.use('/api/boiler', boilerController);
 const PORT = process.env.PORT || 4000;
-app.use('/companies', require('./controllers/companies'));
-app.listen(PORT, () => console.log(`Server started on port ${PORT}`));
 
-//Require data.json
+// API Routes
+app.use('/api/boiler', boilerController);
+app.use('/companies', require('./controllers/companies'));
+
+// Require data.json
 const buildings = require('./data/building.json');
 const technicians = require('./data/technician.json');
 const boilerType = require('./data/boiler-type');
@@ -19,12 +17,15 @@ const boilerType = require('./data/boiler-type');
 // Server listener
 app.listen(PORT, () => console.log(`Server started on port ${PORT}`));
 
-// ------------------
-// Building REST API
-// ------------------
+// --------
+// REST API
+// --------
 
-//Franco Di Rosa
-// getBuildingsAll - getBuildingsByAttribute
+//---------------
+// Franco Di Rosa
+//---------------
+
+// building-controller.getBuildingsAll and getBuildingsByAttribute
 app.get('/api/building', (req, res) => {
     const reqQueryObject = req.query;
     const key = Object.keys(reqQueryObject);
@@ -72,7 +73,7 @@ app.get('/api/building', (req, res) => {
         }
     }
 });
-// getBuildingById
+// building-controller.getBuildingById
 app.get('/api/building/:id', (req, res) => {
     const found = buildings.some(building => building._id.$oid === req.params.id);
     if (found) {
@@ -81,7 +82,7 @@ app.get('/api/building/:id', (req, res) => {
         res.status(400).json({msg: `No building with id: ${req.params.id}`});
     }
 });
-// deleteBuildingById
+// building-controller.deleteBuildingById
 app.delete('/api/building/:id', (req, res) => {
     const found = buildings.some(building => building._id.$oid === req.params.id);
     if (found) {
@@ -91,11 +92,11 @@ app.delete('/api/building/:id', (req, res) => {
     }
 });
 
-//--------------------
-//Alexis Pucheta
-//--------------------
+//---------------
+// Alexis Pucheta
+//---------------
 
-//technician-controller.getTechniciansAll and getTechniciansByAttribute
+// technician-controller.getTechniciansAll and getTechniciansByAttribute
 app.get('/api/technician', (req, res) => {
     for (const key in req.query) {
         if (key ==='full_name') {
@@ -153,7 +154,12 @@ app.delete('/api/technician/:id', (req, res) => {
         res.json({msg:`No Technician with id: ${req.params.id}`});
     }
 });
-// Controller getBoilerTypeById
+
+//------------------
+// Federico Morabito
+//------------------
+
+// boiler-controller.getBoilerTypeById
 app.get('/api/boiler/type/:id', (req, res) => {
     const founded = boilerType.some(boilerType => {
         return boilerType.id.$oid === req.params.id;
@@ -165,7 +171,7 @@ app.get('/api/boiler/type/:id', (req, res) => {
     }
 });
 
-// Controller deleteBoilerTypeById
+// boiler-controller.deleteBoilerTypeById
 app.delete('/api/boiler/type/:id', (req, res) => {
     const found = boilerType.some(boilerType => boilerType.id.$oid === req.params.id);
     if (found) {
@@ -175,7 +181,7 @@ app.delete('/api/boiler/type/:id', (req, res) => {
     }
 });
 
-//Controller getAllBoilerType and getBoilerTypeById
+// boiler-controller.getAllBoilerType and getBoilerTypeById
 app.get('/api/boiler/type', (req, res) => {
     for (const content in req.query) {
         if (content === 'desc') {
@@ -192,4 +198,3 @@ app.get('/api/boiler/type', (req, res) => {
     }
     res.json(boilerType);
 });
-//------------------------------------------
