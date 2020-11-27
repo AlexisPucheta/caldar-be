@@ -1,0 +1,26 @@
+{
+  "name": "caldar-be",
+  "version": "1.0.0",
+  "description": "Project caldAR",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index",
+    "dev": "nodemon index"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AlexisPucheta/caldar-be.git"
+  },
+  "author": "Group T4",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/AlexisPucheta/caldar-be/issues"
+  },
+  "homepage": "https://github.com/AlexisPucheta/caldar-be#readme",
+  "dependencies": {
+    "express": "^4.17.1"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.6"
+  }
+}
