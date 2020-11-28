@@ -13,7 +13,6 @@ const PORT = process.env.PORT || 4000;
 //app.use('/companies', require('./controllers/companies'));
 
 // Require data.json BORRAR!
-const buildings = require('./data/building.json');
 const boilerType = require('./data/boiler-type');
 
 app.use(router);
@@ -78,24 +77,7 @@ app.get('/api/building', (req, res) => {
         }
     }
 });
-// building-controller.getBuildingById
-app.get('/api/building/:id', (req, res) => {
-    const found = buildings.some(building => building._id.$oid === req.params.id);
-    if (found) {
-        res.json(buildings.filter(building => building._id.$oid === req.params.id));
-    } else {
-        res.status(400).json({msg: `No building with id: ${req.params.id}`});
-    }
-});
-// building-controller.deleteBuildingById
-app.delete('/api/building/:id', (req, res) => {
-    const found = buildings.some(building => building._id.$oid === req.params.id);
-    if (found) {
-        res.json(buildings.filter(building => building._id.$oid === req.params.id));
-    } else {
-        res.status(400).json({msg: `No building with id: ${req.params.id}`});
-    }
-});
+
 //------------------
 // Federico Morabito
 //------------------

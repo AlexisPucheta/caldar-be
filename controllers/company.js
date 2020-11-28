@@ -1,4 +1,4 @@
-const companies = requiere ('../data/company.json');
+const companies = require ('../data/company.json');
 
 /* company-controller.getAllCompanies */
 

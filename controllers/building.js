@@ -1,16 +1,66 @@
-/*
+const buildings = require('../data/building.json');
 
-Entity fields:
-- _id: mongo id
-- name: string
-- address: string
-- boilers: array of mongo ids
-- company: mongo id
+exports.getBuildingsAll = (req, res) => {
 
-Controller functions:
-- getBuildingsAll ==> GET 'api/building'
-- getBuildingById ==> GET 'api/building/:id'
-- getBuildingsByAttribute ==> GET 'api/building?attrKey=attrValue'
-- deleteBuildingById ==> DELETE 'api/building/:id'
+    const reqQueryObject = req.query;
+    const key = Object.keys(reqQueryObject);
 
-*/
+    if (JSON.stringify(reqQueryObject)==JSON.stringify({})) {
+        res.status(200).json(buildings)
+    } else {
+        switch (key[0]) {
+            case '_id':
+                if (buildings.some(building => building._id.$oid === reqQueryObject[key])) {
+                    return res.status(200).json(buildings.filter(building => building._id.$oid === reqQueryObject[key]));
+                } else {
+                    return res.status(400).json({msg: `No building with ${key}: ${reqQueryObject[key]}`});
+                }
+            case 'name':
+                if (buildings.some(building => building.name === reqQueryObject[key])) {
+                    return res.status(200).json(buildings.filter(building => building.name === reqQueryObject[key]));
+                } else {
+                    return res.status(400).json({msg: `No building with ${key}: ${reqQueryObject[key]}`});
+                }
+            case 'address':
+                if (buildings.some(building => building.address === reqQueryObject[key])) {
+                    return res.status(200).json(buildings.filter(building => building.address === reqQueryObject[key]));
+                } else {
+                    return res.status(400).json({msg: `No building with ${key}: ${reqQueryObject[key]}`});
+                }
+            case 'boilers':
+                for (let i = 0 ; i < buildings.length; i++) {
+                    var found = buildings[i].boilers.some(boiler => boiler.$oid === reqQueryObject[key]);
+                    if (buildings[i].boilers.some(boiler => boiler.$oid === reqQueryObject[key])) {
+                        return res.status(200).json(buildings[i]);
+                    }
+                }
+                if (!found) {
+                    return res.status(400).json({msg: `No building with ${key}: ${reqQueryObject[key]}`});
+                }
+            case 'company':
+                if (buildings.some(building => building.company.$oid === reqQueryObject[key])) {
+                    return res.status(200).json(buildings.filter(building => building.company.$oid === reqQueryObject[key]));
+                } else {
+                    return res.status(400).json({msg: `No building with ${key}: ${reqQueryObject[key]}`});
+                }
+            default:
+                return res.status(400).json({msg: `Invalid attribute: ${key}`});
+        }
+    }
+};
+
+exports.getBuildingById = (req, res) => {
+    if (buildings.some(building => building._id.$oid === req.params.id)) {
+        res.status(200).json(buildings.filter(building => building._id.$oid === req.params.id));
+    } else {
+        res.status(400).json({msg: `No building with id: ${req.params.id}`});
+    }
+};
+
+exports.deleteBuildingById = (req, res) => {
+    if (buildings.some(building => building._id.$oid === req.params.id)) {
+        res.status(200).json({msg:`Building with id ${req.params.id} was deleted`, buildings: buildings.filter(building => building._id.$oid !== req.params.id)});
+    } else {
+        res.status(400).json({msg: `No building with id: ${req.params.id}`});
+    }
+};

@@ -1,13 +1,13 @@
-const Companies = require("../controllers/companies");
+const company = require("../controllers/company.js");
 
 var router = require("express").Router();
 
 //Retrieve all companies
 //getCompaniesAll and getCompaniesByAttribute
-router.get('/', companies.getCompaniesAll);
-//Retrieve Companies by ID
-router.get('/:id', companies.getCompaniesById);
-//Delete Companies by ID
-router.delete('/:id', companies.deleteCompaniesById);
+router.get('/', company.getCompaniesAll);
+//Retrieve company by ID
+router.get('/:id', company.getCompaniesById);
+//Delete company by ID
+router.delete('/:id', company.deleteCompaniesById);
 
 module.exports = router;

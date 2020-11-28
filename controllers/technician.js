@@ -11,14 +11,14 @@ exports.getTechniciansAll = (req, res) => {
         } else if (key === 'email') {
             return res.json(technicians.filter(technician => technician.email === req.query[key]));
         } else if (key === 'boilers') {
-            for (var i = 0 ; i < technicians.length; i++){
+            for (let i = 0 ; i < technicians.length; i++){
                 var found = technicians[i].boilers.some(boiler => boiler.$oid === req.query[key]);
                 if (found) {
                     return res.json(technicians[i]);
                 }
             }
             if (!found) {
-                return res.status(400).json({msg: `Don't exist that boiler: ${req.query[key]}`})
+                return res.status(400).json({msg: `Doesn't exist that boiler: ${req.query[key]}`})
             }
         } else if (key === 'types') {
             for (var i = 0 ; i < technicians.length; i++){
@@ -28,14 +28,14 @@ exports.getTechniciansAll = (req, res) => {
                 }
             }
             if (!found) {
-                return res.status(404).json({msg: `Don't exist that type of boiler: ${req.query[key]}`})
+                return res.status(404).json({msg: `Doesn't exist that type of boiler: ${req.query[key]}`})
             }
         }
         else if (key !== null) {
-           return res.status(400).json({msg:`Dont Exist that attribute: ${key}`});
+           return res.status(400).json({msg:`Doesn't exist that attribute: ${key}`});
         }
-      }
-      res.json(technicians)
+    }
+    res.json(technicians)
 };
 
 exports.getTechniciansById = (req, res) => {
