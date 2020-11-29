@@ -24,7 +24,6 @@ db.mongoose
 //Port
 const PORT = process.env.PORT || 4000;
 
-
 app.use(router);
 
 // Server listener
