@@ -1,25 +1,31 @@
 const companies = require ('../data/company.json');
 
-/* company-controller.getAllCompanies */
-
+//company-controller.getAllCompanies
 exports.getCompaniesAll = (req, res) => {
     for (const key in req.query) {
-        if (key ==='_id') {
-            return res.json(companies.filter(companies => companies._id$oid === req.query[key]));
+        if (key ==='buildings') {
+            for (let i = 0 ; i < companies.length; i++){
+                var found = companies[i].buildings.some(building => building.$oid === req.query[key]);
+                if (found) {
+                    return res.json(companies[i]);
+                }
+            }
+            if (!found) {
+                return res.status(400).json({msg: `Doesn't exist that boiler: ${req.query[key]}`})
+            }
         } else if (key ==='name') {
             return res.json(companies.filter(companies => companies.name === req.query[key]));
-        } else if (key === 'buildings') {
-            return res.json(companies.filter(companies => companies.buildings === req.query[key]));
         }
-        res.json(companies);
-}};
+    }
+    res.json(companies);
+};
 
-/* company-controller.getCompaniesById */
+//company-controller.getCompaniesById
 
-exports.getCompaniesById = (req, res) =>  {
-    const found = companies.some(companies => companies._id$oid === req.params.id);
+exports.getCompanyById = (req, res) =>  {
+    const found = companies.some(company => company._id.$oid === req.params.id);
     if (found) {
-        res.json(companies.filter(company => company._id$oid === req.params.id));
+        res.json(companies.filter(company => company._id.$oid === req.params.id));
     } else {
         res.status(400).json({msg: "No company with id: ${req.params.id}"});
     }
@@ -27,11 +33,11 @@ exports.getCompaniesById = (req, res) =>  {
 
 /* company-controller.deleteCompaniesById */
 
-exports.deleteCompaniesById = (req, res) => {
-    const found = companies.some(company => company._id._id$oid === req.params.id);
+exports.deleteCompanyById = (req, res) => {
+    const found = companies.some(company => company._id.$oid === req.params.id);
     if (found) {
-        res.json(companies.filter(company => company._id$oid === req.params.id));
+        res.json({msg:`Company with id ${req.params.id} was deleted`, companies: companies.filter(company => company._id.$oid !== req.params.id)});
     } else {
-        res.status(400).json({msg: "No company with id: ${req.params.id}"});
+        res.status(400).json({msg: `No company with id: ${req.params.id}`});
     }
 };

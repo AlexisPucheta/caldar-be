@@ -1,8 +1,6 @@
 // Declarations
 const express = require('express');
 const app = express();
-//require your controller BORRAR!
-const boilerController = require("./controllers/boilers");
 //Router
 const router = require('./routes');
 //Port
