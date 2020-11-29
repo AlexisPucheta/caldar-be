@@ -1,14 +1,10 @@
-const { model } = require("mongoose");
+const { model, Schema } = require("mongoose");
 
-module.exports = mongoose => {
-    const boilerType = mongoose.model(
-        "boiler type",
-        mongoose.Schema(
-            {
-                id: Number,
-                type: String,
-            }
-        )
-    )
-    return boilerType
-};
+const boilerTypeSchema = new Schema({
+	desc: {
+		type: String,
+		required: true
+	}
+}, { timestamps: true });
+
+module.exports = model('BoilerType', boilerTypeSchema);
