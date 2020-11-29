@@ -5,7 +5,9 @@
   "main": "index.js",
   "scripts": {
     "start": "node index",
-    "dev": "nodemon index"
+    "dev": "nodemon index",
+    "lint": "eslint -c ./.eslintrc.json --ignore-path .gitignore './**/*.js'",
+    "lint-fix": "eslint -c ./.eslintrc.json --fix --ignore-path .gitignore './**/*.js'"
   },
   "repository": {
     "type": "git",
@@ -21,6 +23,12 @@
     "express": "^4.17.1"
   },
   "devDependencies": {
-    "nodemon": "^2.0.6"
+    "eslint": "^7.14.0",
+    "eslint-config-airbnb-base": "^14.2.1",
+    "eslint-config-prettier": "^6.15.0",
+    "eslint-plugin-import": "^2.22.1",
+    "eslint-plugin-prettier": "^3.1.4",
+    "nodemon": "^2.0.6",
+    "prettier": "^2.2.1"
   }
 }
