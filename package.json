@@ -18,7 +18,9 @@
   },
   "homepage": "https://github.com/AlexisPucheta/caldar-be#readme",
   "dependencies": {
-    "express": "^4.17.1"
+    "express": "^4.17.1",
+    "mongodb": "^3.6.3",
+    "mongoose": "^5.10.18"
   },
   "devDependencies": {
     "nodemon": "^2.0.6"
