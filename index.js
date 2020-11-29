@@ -1,16 +1,16 @@
 // Declarations
+require('dotenv').config()
 const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
-const db = require('./models')
+const mongoose = require("mongoose");
+
 //Router
 const router = require('./routes');
-// Database connection
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
 
-db.mongoose
-    .connect(db.url, {
+// Database connection
+mongoose
+    .connect(process.env.CONNECTION_STRING, {
         useNewUrlParser: true,
         useUnifiedTopology: true
     })
@@ -24,6 +24,8 @@ db.mongoose
 //Port
 const PORT = process.env.PORT || 4000;
 
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(router);
 
 // Server listener
