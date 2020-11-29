@@ -6,8 +6,8 @@ var router = require("express").Router();
 //getCompaniesAll and getCompaniesByAttribute
 router.get('/', company.getCompaniesAll);
 //Retrieve company by ID
-router.get('/:id', company.getCompaniesById);
+router.get('/:id', company.getCompanyById);
 //Delete company by ID
-router.delete('/:id', company.deleteCompaniesById);
+router.delete('/:id', company.deleteCompanyById);
 
 module.exports = router;

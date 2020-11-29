@@ -38,7 +38,7 @@ exports.getTechniciansAll = (req, res) => {
     res.json(technicians)
 };
 
-exports.getTechniciansById = (req, res) => {
+exports.getTechnicianById = (req, res) => {
     const found = technicians.some(technician => technician._id.$oid === req.params.id);
     if (found) {
         res.json(technicians.filter(technician => technician._id.$oid === req.params.id));
