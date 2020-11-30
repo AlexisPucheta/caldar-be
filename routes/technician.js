@@ -9,5 +9,9 @@ router.get('/', technician.getTechniciansAll);
 router.get('/:id', technician.getTechnicianById);
 //Delete technician by ID
 router.delete('/:id', technician.deleteTechnicianById);
+//Update technician by ID
+router.put('/:id', technician.putTechnicianById);
+//Create technician
+router.post('/', technician.create);
 
 module.exports = router;

@@ -1,5 +1,6 @@
 const Technician = require("../models/technician");
 
+// get all technician or get technician by his attributes
 exports.getTechniciansAll = (req, res) => {
     const reqQueryObject = req.query;
     const key = Object.keys(reqQueryObject);
@@ -93,6 +94,7 @@ exports.getTechniciansAll = (req, res) => {
     }
 };
 
+//Delete technician by id from db
 exports.deleteTechnicianById = (req, res) => {
     Technician.findOneAndRemove({_id: req.params.id}, {useFindAndModify: false})
     .then(data => {
@@ -107,6 +109,7 @@ exports.deleteTechnicianById = (req, res) => {
 
 };
 
+//get technician by id
 exports.getTechnicianById = (req, res) => {
     Technician.findById(req.params.id)
     .then(data => {
@@ -119,3 +122,54 @@ exports.getTechnicianById = (req, res) => {
         return res.status(500).send({msg:`Error searching Technician with id=${req.params.id}`})
     })
 };
+
+//Update technician by id. All register are needed. (PUT)
+exports.putTechnicianById = (req, res) => {
+    if (!req.body) {
+        return res.status(400).send({msg: `Data to update cannot be empty`})
+    }
+    console.log(req.body)
+    if (!req.body.full_name || !req.body.phone || !req.body.birthday || !req.body.email || !req.body.boilers || !req.body.types) {
+        console.log(req.body)
+        res.status(400).send({msg:`Content cannot be empty`});
+        return;
+    }
+
+    Technician.findOneAndUpdate(req.params.id, req.body, {useFindAndModify: false})
+        .then(data => {
+            if (!data) {
+                return res.status(404).send({msg:`Technician with id=${req.params.id} was no found`});
+            } else {
+                return res.status(200).send({msg:`Technician with id=${req.params.id} was update successfully`})
+            }
+        })
+        .catch(err => {
+            res.status(500).send({msg:`ERROR updating Technician with id: ${req.params.id}`})
+        })
+};
+
+//Create a technician. At least full_name is required
+exports.create = (req, res) => {
+    const technician = new Technician({
+        full_name: req.body.full_name,
+        phone: req.body.phone,
+        birthday: req.body.birthday,
+        email: req.body.email,
+        boilers: req.body.boilers,
+        types: req.body.types
+    });
+    if (technician.full_name !==undefined){
+        technician
+            .save(technician)
+            .then(data => {
+                res.send(data);
+            })
+            .catch(err => {
+                res.send.status(500)({msg:"Something went wrong!"})
+            })
+    } else {
+        res.send({msg:`Full_name cannot be empty`});
+    }
+}
+
+
