@@ -1,4 +1,54 @@
-const boilerTypes = require("../data/boiler-type.json");
+const db = require('../models');
+const BoilerType = db.BoilerType;
+
+exports.getAllBoilerType = (req, res) => {
+    BoilerType.find({})
+        .then(data => {
+            res.send(data);
+        })
+        .catch(err => {
+            res.status(500).send(
+                "There is some error while requesting Boiler Type"
+            );
+        });
+};
+
+exports.createNewBoilerType = (req, res) => {
+    if (!req.body.desc) {
+        res.status(400).send({ message: "There is no data to create" });
+        return;
+    }
+    const boilerType = new BoilerType({
+        desc: req.body.desc
+    });
+    boilerType
+        .save(boilerType)
+        .then(data => {
+            res.send(data);
+        })
+        .catch(err => {
+            res.status(500).send({
+                message:
+                    err.message || "There is an error requesting in create a new boiler type"
+            });
+        });
+};
+
+exports.deleteBoilerTypeById = (req, res) => {
+    const id = req.params._id;
+    BoilerType.findOneAndDelete({ id }, { useFindAndModify: false })
+        .then(data =>
+            res.send({ message: "Ok in deleting" })
+        )
+        .catch(err => { 
+            res.status(500).send({
+                message: "Error deleting the existing boilertype"
+            });
+        });
+}
+
+
+/*const boilerTypes = require("../data/boiler-type.json");
 
 exports.getBoilerTypeById = (req , res) => {
     const founded = boilerTypes.some(boilerType => {
@@ -36,3 +86,5 @@ exports.getBoilerTypeAll = (req, res) => {
     }
     res.json(boilerTypes);
 };
+
+*/
