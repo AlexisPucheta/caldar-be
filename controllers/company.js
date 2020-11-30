@@ -11,7 +11,7 @@ exports.getCompaniesAll = (req, res) => {
                 }
             }
             if (!found) {
-                return res.status(400).json({msg: `Doesn't exist that boiler: ${req.query[key]}`})
+                return res.status(400).json({msg: `Doesn't exist that company: ${req.query[key]}`})
             }
         } else if (key ==='name') {
             return res.json(companies.filter(companies => companies.name === req.query[key]));
@@ -41,3 +41,4 @@ exports.deleteCompanyById = (req, res) => {
         res.status(400).json({msg: `No company with id: ${req.params.id}`});
     }
 };
+
