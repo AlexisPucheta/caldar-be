@@ -1,18 +1,6 @@
 const db = require('../models');
 const BoilerType = db.BoilerType;
 
-exports.getAllBoilerType = (req, res) => {
-    BoilerType.find({})
-        .then(data => {
-            res.send(data);
-        })
-        .catch(err => {
-            res.status(500).send(
-                "There is some error while requesting Boiler Type"
-            );
-        });
-};
-
 exports.createNewBoilerType = (req, res) => {
     if (!req.body.desc) {
         res.status(400).send({ message: "There is no data to create" });
@@ -35,56 +23,69 @@ exports.createNewBoilerType = (req, res) => {
 };
 
 exports.deleteBoilerTypeById = (req, res) => {
-    const id = req.params._id;
+    const id = req.params.id;
     BoilerType.findOneAndDelete({ id }, { useFindAndModify: false })
         .then(data =>
             res.send({ message: "Ok in deleting" })
         )
-        .catch(err => { 
+        .catch(err => {
             res.status(500).send({
+
                 message: "Error deleting the existing boilertype"
             });
         });
 }
 
-
-/*const boilerTypes = require("../data/boiler-type.json");
-
-exports.getBoilerTypeById = (req , res) => {
-    const founded = boilerTypes.some(boilerType => {
-        return boilerType._id.$oid === req.params.id;
-    });
-    if (founded) {
-        res.json(boilerTypes.filter(boilerType => boilerType._id.$oid === req.params.id));
-    } else {
-        res.status(400).json({ msg: `There is no boiler type with this id: ${req.params.id}` });
-    }
-};
-
-exports.deleteBoilerTypeById = (req, res) => {
-    const found = boilerTypes.some(boilerType => boilerType._id.$oid === req.params.id);
-    if (found) {
-        res.json({msg:`Boiler-Type with id ${req.params.id} was deleted`, boilerTypes: boilerTypes.filter(boilerType => boilerType._id.$oid !== req.params.id)});
-    } else {
-        res.status(400).json({ msg: `There is no boiler type with this id: ${req.params.id}` });
-    }
-};
-
 exports.getBoilerTypeAll = (req, res) => {
-    for (const content in req.query) {
-        if (content === 'desc') {
-            if (boilerTypes.some(boilerType => boilerType.desc === req.query[content])) {
-                return res.json(boilerTypes.filter(boilerType => boilerType.desc === req.query[content]));
-            }
-            else {
-                return res.json({ msg: `It doesn´t exist that boiler type with this description: ${req.query[content]}`})
-            }
-        }
-        else if (content !== null) {
-            return res.json({ msg: `It doesn't exist that attribute: ${content}`});
+    const reqQueryObject = req.query;
+    const key = Object.keys(reqQueryObject);
+    if (key[0] === undefined) {
+        BoilerType.find({})
+            .then(data => {
+                return res.send(data)
+            })
+    } else {
+        switch (key[0]) {
+            case 'desc':
+                console.log('case desc')
+                BoilerType.find({ desc: reqQueryObject[key] })
+                    .then(data => {
+                        if (Object.keys(data).length !== 0) {
+                            return res.send(data);
+                        } else {
+                            return res.status(400).send({ msg: `Doesn't exist that boiler type with that desc: ${reqQueryObject[key]}` });
+                        }
+                    })
+                    .catch(err => {
+                        return res.status(500).send({ msg: "There is some error when requesting that description" });
+                    })
         }
     }
-    res.json(boilerTypes);
 };
 
-*/
+exports.updateBoilerType = (req, res) => {
+    if (!req.body) {
+        return res.status(400).send({
+            message: "The data is empty so it cannot be updated"
+        });
+    }
+    if (!req.body.desc) {
+        res.status(400).send({
+            message: "The content cannot be empty"
+        });
+        const id = req.params._id;
+        BoilerType.findOneAndRemove({ id }, req.body, { useFindAndModify: false })
+            .then(data => {
+                if (!data) {
+                    res.status(404).send({
+                        message: "Update failed because that id doesn't exist."
+                    });
+                } else res.send({ message: "Boiler type was succesfully updated." });
+            })
+            .catch(err => {
+                res.status(500).send({
+                    message: "Update failed"
+                });
+            });
+    };
+};
