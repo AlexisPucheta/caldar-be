@@ -13,4 +13,4 @@ const technicianSchema = new Schema({
     types: [ObjectId]
 }, {_id: true, timestamps: true });
 
-module.exports = model('Technician', technicianSchema)
+module.exports = model('Technician', technicianSchema);
