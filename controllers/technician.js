@@ -63,35 +63,28 @@ exports.getTechniciansAll = (req, res) => {
                     return res.status(500).send({msg:"ERROR"});
                 })
                 break;
-                //Buscar otra solucion. (.populate())
             case "boilers":
                 Technician.find({boilers: reqQueryObject[key]})
                 .then(data => {
-                    if (Object.keys(data).length !== 0) {
-                        return res.send(data);
+                    if (Object.keys(data).length === 0 ){ //sin el lenght me devuelve vacio si le pongo un ID de types
+                        return res.status(404).send({msg:`Doesn't exist this Boiler ID: ${reqQueryObject[key]} for any technician`});
                     }
+                    res.send(data);
                 })
                 .catch(err => {
-                    if(Object.keys(err).length !== false) {
-                        return res.status(400).send({msg:`Doesn't exist this boiler ID: ${reqQueryObject[key]} for any technician`});
-                    } else {
-                        return res.status(500).send({msg:"ERROR"});
-                    }
+                    return res.status(500).send({msg:`Error. This is not a ID valid:${reqQueryObject[key]}`})
                 })
                 break
             case "types":
                 Technician.find({types: reqQueryObject[key]})
                 .then(data => {
-                    if (Object.keys(data).length !== 0) {
-                        return res.send(data);
+                    if (Object.keys(data).length === 0 ){ //sin el lenght me devuelve vacio si le pongo un ID de boilers
+                        return res.status(404).send({msg:`Doesn't exist this Type ID: ${reqQueryObject[key]} for any technician`});
                     }
-                    })
+                    res.send(data);
+                })
                 .catch(err => {
-                    if(Object.keys(err).length !== false) {
-                        return res.status(400).send({msg:`Doesn't exist this Type ID: ${reqQueryObject[key]} for any technician`});
-                    } else {
-                        return res.status(500).send({msg:"ERROR"});
-                    }
+                    return res.status(500).send({msg:`Error. This is not a ID valid:${reqQueryObject[key]}`})
                 })
                 break
             default:
@@ -101,16 +94,15 @@ exports.getTechniciansAll = (req, res) => {
 };
 
 exports.deleteTechnicianById = (req, res) => {
-    Technician.deleteOne({_id: req.params.id})
+    Technician.findOneAndRemove({_id: req.params.id}, {useFindAndModify: false})
     .then(data => {
-        if (data.deletedCount !== 0){
-            res.send({msg: `The technician with id: ${req.params.id} was deleted successfully`});
-        } else {
-            res.status(400).send({msg:`Doesn't exist that technician with id: ${req.params.id}`});
-        }
+        res.send({
+            data, 
+            msg: `Technician was deleted succesfully ${req.params.id}`
+        })
     })
     .catch(err => {
-        res.status(500).send({msg:"ERROR"})
+        return res.status(500).send({msg:`Error removing Technician with id=${req.params.id}`})
     })
 
 };
@@ -118,13 +110,12 @@ exports.deleteTechnicianById = (req, res) => {
 exports.getTechnicianById = (req, res) => {
     Technician.findById(req.params.id)
     .then(data => {
-        if (data !== null){
-            res.send(data);
-        } else {
-            res.status(400).send({msg:`Doesn't exist that technician with id: ${req.params.id}`});
+        if (!data){
+            return res.status(404).send({msg:`Technician with id=${req.params.id} was no found`});
         }
+        res.send(data);
     })
     .catch(err => {
-        res.status(500).send({msg:"ERROR"})
+        return res.status(500).send({msg:`Error searching Technician with id=${req.params.id}`})
     })
 };
