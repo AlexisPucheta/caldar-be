@@ -7,84 +7,95 @@ exports.getTechniciansAll = (req, res) => {
     if(key[0] === undefined){
         Technician.find({})
         .then(data => {
-            res.send(data)
+            return res.send(data)
         })
     } else {
-        switch (key[0]){
-            case "full_name":
+        switch (key[0]) {
+            case 'full_name':
+                console.log('case fullname')
                 Technician.find({full_name: reqQueryObject[key]})
                 .then(data => {
                     if (Object.keys(data).length !== 0) {
-                        res.send(data);
+                        return res.send(data);
                     } else {
-                        res.status(400).send({msg:`Doesn't exist that technician with ID: ${reqQueryObject[key]}`});
+                        return res.status(400).send({msg:`Doesn't exist that technician with a full_name: ${reqQueryObject[key]}`});
                     }
                 })
                 .catch(err => {
-                    res.status(500).send({msg:"ERROR"});
+                    return res.status(500).send({msg:"ERROR"});
                 })
-            case "phone":
+                break;
+            case 'phone':
                 Technician.find({phone: reqQueryObject[key]})
                 .then(data => {
                     if (Object.keys(data).length !== 0) {
-                        res.send(data);
+                        return res.send(data);
                     } else {
-                        res.status(400).send({msg:`Doesn't exist this phone number ${reqQueryObject[key]} for any technician`});
+                        return res.status(400).send({msg:`Doesn't exist this phone number ${reqQueryObject[key]} for any technician`});
                     }
                 })
                 .catch(err => {
-                    res.status(500).send({msg:"ERROR"});
+                    return res.status(500).send({msg:"ERROR"});
                 })
-            case "birthday":
+                break;
+            case 'birthday':
                 Technician.find({birthday: reqQueryObject[key]})
                 .then(data => {
                     if (Object.keys(data).length !== 0) {
-                        res.send(data);
+                        return res.send(data);
                     } else {
-                        res.status(400).send({msg:`Doesn't exist this birthday ${reqQueryObject[key]} for any technician`});
+                        return res.status(400).send({msg:`Doesn't exist this birthday ${reqQueryObject[key]} for any technician`});
                     }
                 })
                 .catch(err => {
-                    res.status(500).send({msg:"ERROR"});
+                    return res.status(500).send({msg:"ERROR"});
                 })
-            case "email":
+            case 'email':
                 Technician.find({email: reqQueryObject[key]})
                 .then(data => {
                     if (Object.keys(data).length !== 0) {
-                        res.send(data);
+                        return res.send(data);
                     } else {
-                        res.status(400).send({msg:`Doesn't exist this email ${reqQueryObject[key]} for any technician`});
+                        return res.status(400).send({msg:`Doesn't exist this email ${reqQueryObject[key]} for any technician`});
                     }
                 })
                 .catch(err => {
-                    res.status(500).send({msg:"ERROR"});
+                    return res.status(500).send({msg:"ERROR"});
                 })
+                break;
+                //Buscar otra solucion. (.populate())
             case "boilers":
                 Technician.find({boilers: reqQueryObject[key]})
                 .then(data => {
                     if (Object.keys(data).length !== 0) {
-                        res.send(data);
-                    } else {
-                        res.status(400).send({msg:`Doesn't exist this boiler ID: ${reqQueryObject[key]} for any technician`});
+                        return res.send(data);
                     }
                 })
                 .catch(err => {
-                    res.status(500).send({msg:"ERROR"});
-                })  
+                    if(Object.keys(err).length !== false) {
+                        return res.status(400).send({msg:`Doesn't exist this boiler ID: ${reqQueryObject[key]} for any technician`});
+                    } else {
+                        return res.status(500).send({msg:"ERROR"});
+                    }
+                })
+                break
             case "types":
                 Technician.find({types: reqQueryObject[key]})
                 .then(data => {
                     if (Object.keys(data).length !== 0) {
-                        res.send(data);
-                    } else {
-                        res.status(400).send({msg:`Doesn't exist this type ID: ${reqQueryObject[key]} for any technician`});
+                        return res.send(data);
                     }
                     })
                 .catch(err => {
-                    res.status(500).send({msg:"ERROR"});//Necesito cambiar el tipo de dato de los array boiler y type por String, objectID no va!
+                    if(Object.keys(err).length !== false) {
+                        return res.status(400).send({msg:`Doesn't exist this Type ID: ${reqQueryObject[key]} for any technician`});
+                    } else {
+                        return res.status(500).send({msg:"ERROR"});
+                    }
                 })
+                break
             default:
-                res.status(400).send({msg:`Doesn't exist this attribute ${key[0]}`});
+                return res.status(400).send({msg:`Doesn't exist this attribute ${key[0]}`});
         }
     }
 };

@@ -6,8 +6,8 @@ const technicianSchema = new Schema({
     phone: String,
     birthday: String,
     email: String,
-    boilers: [],
-    types: []
+    boilers: [ObjectId],
+    types: [ObjectId]
 }, { timestamps: true });
 
 module.exports = model('Technician', technicianSchema)
