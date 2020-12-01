@@ -1,44 +1,11 @@
 const db = require('../models');
 const BoilerType = db.BoilerType;
 
-exports.createNewBoilerType = (req, res) => {
-    if (!req.body.desc) {
-        res.status(400).send({ message: "There is no data to create" });
-        return;
-    }
-    const boilerType = new BoilerType({
-        desc: req.body.desc
-    });
-    boilerType
-        .save(boilerType)
-        .then(data => {
-            res.send(data);
-        })
-        .catch(err => {
-            res.status(500).send({
-                message:
-                    err.message || "There is an error requesting in create a new boiler type"
-            });
-        });
-};
-
-exports.deleteBoilerTypeById = (req, res) => {
-    const id = req.params.id;
-    BoilerType.findOneAndDelete({ id }, { useFindAndModify: false })
-        .then(data =>
-            res.send({ message: "Ok in deleting" })
-        )
-        .catch(err => {
-            res.status(500).send({
-
-                message: "Error deleting the existing boilertype"
-            });
-        });
-}
-
+//get all boiler type or get boiler type by his attributes
 exports.getBoilerTypeAll = (req, res) => {
     const reqQueryObject = req.query;
     const key = Object.keys(reqQueryObject);
+
     if (key[0] === undefined) {
         BoilerType.find({})
             .then(data => {
@@ -47,45 +14,90 @@ exports.getBoilerTypeAll = (req, res) => {
     } else {
         switch (key[0]) {
             case 'desc':
-                console.log('case desc')
                 BoilerType.find({ desc: reqQueryObject[key] })
                     .then(data => {
                         if (Object.keys(data).length !== 0) {
                             return res.send(data);
                         } else {
-                            return res.status(400).send({ msg: `Doesn't exist that boiler type with that desc: ${reqQueryObject[key]}` });
+                            return res.status(400).send({ msg: `Doesn't exist that boiler type with a desc: ${reqQueryObject[key]}` });
                         }
                     })
                     .catch(err => {
-                        return res.status(500).send({ msg: "There is some error when requesting that description" });
+                        return res.status(500).send({ msg: "ERROR" });
                     })
         }
     }
 };
 
-exports.updateBoilerType = (req, res) => {
+//Delete boiler type by id from db
+exports.deleteBoilerTypeById = (req, res) => {
+    BoilerType.findOneAndDelete({ _id: req.params.id }, { useFindAndModify: false })
+        .then(data => {
+            res.send({
+                data,
+                msg: `Boiler type was deleted succesfully ${req.params.id}`
+            });
+        })
+        .catch(err => {
+            return res.status(500).send({
+                msg: `Error removing Boiler type with id= $(req.params.id)`
+            })
+        });
+};
+
+// get boilertype by id
+exports.getBoilerTypeById = (req, res) => {
+    BoilerType.findById(req.params.id)
+        .then(data => {
+            if (!data) {
+                return res.status(404).send({ msg: `Boiler type with id=${req.params.id} was no found` });
+            }
+            res.send(data);
+        })
+        .catch(err => {
+            return res.status(500).send({ msg: `Error searching Boiler type with id=${req.params.id}` });
+        })
+};
+
+//Update boiler type by id. All register are needed.
+exports.putBoilerType = (req, res) => {
     if (!req.body) {
         return res.status(400).send({
-            message: "The data is empty so it cannot be updated"
+            message: 'The data is empty so it cannot be updated'
         });
     }
     if (!req.body.desc) {
-        res.status(400).send({
-            message: "The content cannot be empty"
+        res.status(400).send({ msg: 'Content cannot be empty' });
+        return;
+    }
+    BoilerType.findOneAndUpdate({ _id: req.params.id }, req.body, { useFindAndModify: false })
+        .then(data => {
+            if (!data) {
+                return res.status(404).send({
+                    msg: `Boiler type with id=${req.params.id} was not found`
+                });
+            } else res.status(200).send({ data, msg: `Boiler type with id=${req.params.id} was update successfully` });
+        })
+        .catch(err => {
+            return res.status(500).send({ msg: `ERROR updating Boiler type with id: ${req.params.id}` });
         });
-        const id = req.params._id;
-        BoilerType.findOneAndRemove({ id }, req.body, { useFindAndModify: false })
+};
+
+//Create a boiler type. At least desc is required
+exports.create = (req, res) => {
+    const boilerType = new BoilerType({
+        desc: req.body.desc
+    });
+    if (boilerType.desc !== undefined) {
+        boilerType
+            .save(boilerType)
             .then(data => {
-                if (!data) {
-                    res.status(404).send({
-                        message: "Update failed because that id doesn't exist."
-                    });
-                } else res.send({ message: "Boiler type was succesfully updated." });
+                res.send(data);
             })
             .catch(err => {
-                res.status(500).send({
-                    message: "Update failed"
-                });
-            });
-    };
+                return res.send.status(500)({ msg: "Something went wrong!" });
+            })
+    } else {
+        return res.send({ msg: `Desc cannot be empty` });
+    }
 };
