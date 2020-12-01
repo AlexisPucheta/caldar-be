@@ -1,5 +1,7 @@
-const BoilerType = require("./boiler-type");
+const BoilerType = require("./boiler-type.js");
+const Boiler = require("./boiler.js");
 
 module.exports = {
-  BoilerType
+  BoilerType,
+  Boiler
 };
