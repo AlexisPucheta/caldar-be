@@ -27,10 +27,8 @@ exports.createBuilding = (req, res) => {
 
 // Retrieve all buildings or get building by its attributes from the database.
 exports.getBuildingsAll = (req, res) => {
-    const reqQueryObject = req.query;
-    const key = Object.keys(reqQueryObject);
-
-    if (key[0] === undefined) {
+    const key = Object.keys(req.query);
+    if (JSON.stringify(req.query)==JSON.stringify({})) {
         Building.find({})
         .then(data => {
             return res.status(200).send(data);
@@ -39,60 +37,17 @@ exports.getBuildingsAll = (req, res) => {
             return res.status(500).send({msg: err.message || 'Some error ocurred while retrieving all buildings.'});
         });
     } else {
-        switch (key[0]) {
-            case 'name':
-                Building.find({name: reqQueryObject[key]})
-                .then(data => {
-                    if (Object.keys(data).length !== 0) {
-                        return res.status(200).send(data);
-                    } else {
-                        return res.status(404).send({msg: `Doesn't exist any building with ${key}: ${reqQueryObject[key]}.`});
-                    }
-                })
-                .catch(err => {
-                    return res.status(500).send({msg: err.message || 'Some error ocurred while retrieving building.'});
-                });
-                break;
-            case 'address':
-                Building.find({address: reqQueryObject[key]})
-                .then(data => {
-                    if (Object.keys(data).length !== 0) {
-                        return res.status(200).send(data);
-                    } else {
-                        return res.status(404).send({msg: `Doesn't exist any building with ${key}: ${reqQueryObject[key]}.`});
-                    }
-                })
-                .catch(err => {
-                    return res.status(500).send({msg: err.message || 'Some error ocurred while retrieving building.'});
-                });
-                break;
-            case 'boilers':
-                Building.find({boilers: reqQueryObject[key]})
-                .then(data => {
-                    if (Object.keys(data).length === 0 ){ //sin el lenght me devuelve vacio si le pongo un ID de boilers
-                        return res.status(404).send({msg: `Doesn't exist this boiler id: ${reqQueryObject[key]} for any building.`});
-                    }
-                    res.status(200).send(data);
-                })
-                .catch(err => {
-                    return res.status(500).send({msg:`Error. This is not a ID valid:${reqQueryObject[key]}`});
-                })
-                break;
-            case 'company':
-                Building.find({company: reqQueryObject[key]})
-                .then(data => {
-                    if (Object.keys(data).length === 0 ){ //sin el lenght me devuelve vacio si le pongo un ID de company
-                        return res.status(404).send({msg: `Doesn't exist building belonging to ${key} with id: ${reqQueryObject[key]}.`});
-                    }
-                    res.status(200).send(data);
-                })
-                .catch(err => {
-                    return res.status(500).send({msg: err.message || 'Some error ocurred while retrieving building.'});
-                });
-                break;
-            default:
-                return res.status(400).send({msg: `Doesn't exist attribute ${key[0]}.`});
-        }
+        Building.find(req.query)
+        .then(data => {
+            if (Object.keys(data).length !== 0) {
+                return res.status(200).send(data);
+            } else {
+                return res.status(404).send({msg: `Doesn't exist any building with ${key}: ${req.query[key]}.`});
+            }
+        })
+        .catch(err => {
+            return res.status(500).send({msg: err.message || `Some error ocurred while retrieving buildings by ${key}.`});
+        });
     }
 };
 
