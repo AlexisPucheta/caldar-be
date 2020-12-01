@@ -25,10 +25,8 @@ exports.createBoiler = (req, res) => {
 
 // Retrieve all boilers or get boiler by its attributes from the database.
 exports.getBoilersAll = (req, res) => {
-    const reqQueryObject = req.query;
-    const key = Object.keys(reqQueryObject);
-
-    if (key[0] === undefined) {
+    const key = Object.keys(req.query);
+    if (JSON.stringify(req.query)==JSON.stringify({})) {
         Boiler.find({})
         .then(data => {
             return res.status(200).send(data);
@@ -37,35 +35,17 @@ exports.getBoilersAll = (req, res) => {
             return res.status(500).send({msg: err.message || 'Some error ocurred while retrieving all boilers.'});
         });
     } else {
-        switch (key[0]) {
-            case 'name':
-                Boiler.find({name: reqQueryObject[key]})
-                .then(data => {
-                    if (Object.keys(data).length !== 0) {
-                        return res.status(200).send(data);
-                    } else {
-                        return res.status(404).send({msg: `Doesn't exist any boiler with ${key}: ${reqQueryObject[key]}.`});
-                    }
-                })
-                .catch(err => {
-                    return res.status(500).send({msg: err.message || 'Some error ocurred while retrieving boiler.'});
-                });
-                break;
-            case 'type':
-                Boiler.find({type: reqQueryObject[key]})
-                .then(data => {
-                    if (Object.keys(data).length === 0 ){ //sin el lenght me devuelve vacio si le pongo un ID de type
-                        return res.status(404).send({msg: `Doesn't exist boiler ${key} with id: ${reqQueryObject[key]}.`});
-                    }
-                    res.status(200).send(data);
-                })
-                .catch(err => {
-                    return res.status(500).send({msg: err.message || 'Some error ocurred while retrieving boiler.'});
-                });
-                break;
-            default:
-                return res.status(400).send({msg: `Doesn't exist attribute ${key[0]}.`});
-        }
+        Boiler.find(req.query)
+        .then(data => {
+            if (Object.keys(data).length !== 0) {
+                return res.status(200).send(data);
+            } else {
+                return res.status(404).send({msg: `Doesn't exist any boiler with ${key}: ${req.query[key]}.`});
+            }
+        })
+        .catch(err => {
+            return res.status(500).send({msg: err.message || `Some error ocurred while retrieving boilers by ${key}.`});
+        });
     }
 };
 
