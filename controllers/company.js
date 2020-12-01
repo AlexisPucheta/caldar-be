@@ -42,7 +42,7 @@ exports.getCompaniesAll = (req, res) => {
 
 //company-controller.getCompanyById
 exports.getCompanyById = (req, res) => {
-    Company.getCompanyById({id: req.params.id})
+    Company.findById({_id: req.params.id})
     .then(data => {
         if (!data) {
             return res.status(404).send({
