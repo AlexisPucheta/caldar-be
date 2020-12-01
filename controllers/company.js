@@ -1,4 +1,5 @@
-const companies = require ('../data/company.json');
+const companies = require ('../models');
+const Company = db.Company;
 
 //company-controller.create
 exports.create = (req, res) => {
@@ -26,7 +27,18 @@ exports.create = (req, res) => {
         });
 };
 
-
+//company-controller.getAllCompany
+exports.getCompaniesAll = (req, res) => {
+    Company.find({})
+    .then(data => {
+        res.send(data);
+    })
+    .catch(err => {
+        res.status(500).send(
+            "There is some error while requesting Companies"
+        );
+    });
+};
 
 
 
@@ -34,7 +46,7 @@ exports.create = (req, res) => {
 
 
 //company-controller.getAllCompanies
-exports.getCompaniesAll = (req, res) => {
+/*exports.getCompaniesAll = (req, res) => {
     for (const key in req.query) {
         if (key ==='buildings') {
             for (let i = 0 ; i < companies.length; i++){
@@ -52,7 +64,7 @@ exports.getCompaniesAll = (req, res) => {
     }
     res.json(companies);
 };
-
+*/
 //company-controller.getCompaniesById
 
 exports.getCompanyById = (req, res) =>  {

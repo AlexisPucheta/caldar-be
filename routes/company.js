@@ -1,5 +1,5 @@
-const company = require("../controllers/company.js");
-
+const db = require("../models");
+const Company = db.Company
 var router = require("express").Router();
 
 //Retrieve all companies
