@@ -1,5 +1,5 @@
-const db = require("../models");
-const Company = db.Company
+const company = require("../controllers/company.js");
+
 var router = require("express").Router();
 
 //Retrieve all companies
@@ -13,7 +13,6 @@ router.delete('/:id', company.deleteCompanyById);
 router.put('/:id', company.putCompanyById);
 */
 //Create Company
-router.post('/', company.create);
-
+router.post('/', company.createCompany);
 
 module.exports = router;

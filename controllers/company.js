@@ -1,8 +1,8 @@
-const companies = require ('../models');
+const db = require ('../models');
 const Company = db.Company;
 
 //company-controller.create
-exports.create = (req, res) => {
+exports.createCompany = (req, res) => {
     //Validate request
     if (!req.body.name || !req.body.buildings) {
         res.status(400).send( {message: "There is no data to create"});
@@ -40,8 +40,24 @@ exports.getCompaniesAll = (req, res) => {
     });
 };
 
-
-
+//company-controller.getCompanyById
+exports.getCompanyById = (req, res) => {
+    Company.getCompanyById({id: req.params.id})
+    .then(data => {
+        if (!data) {
+            return res.status(404).send({
+                message: 'Company with id ${req.params.id} was not found'
+            })
+        }
+        res.send(data)
+    })
+    .catch(err => {
+        res.status(500).send({
+            message:
+            err.message || "Some error ocurred while requesting data"
+        });
+    });
+};
 
 
 
@@ -66,16 +82,14 @@ exports.getCompaniesAll = (req, res) => {
 };
 */
 //company-controller.getCompaniesById
-
-exports.getCompanyById = (req, res) =>  {
+/*exports.getCompanyById = (req, res) =>  {
     const found = companies.some(company => company._id.$oid === req.params.id);
     if (found) {
         res.json(companies.filter(company => company._id.$oid === req.params.id));
     } else {
         res.status(400).json({msg: "No company with id: ${req.params.id}"});
     }
-};
-
+};*/
 /* company-controller.deleteCompaniesById */
 
 exports.deleteCompanyById = (req, res) => {

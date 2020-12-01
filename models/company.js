@@ -9,6 +9,6 @@ const CompanySchema = new Schema({
         type: Array,
         required: true
     }
-}, { timestamps: true });
+}, {timestamps: true });
 
 module.exports = model('Company', CompanySchema);
