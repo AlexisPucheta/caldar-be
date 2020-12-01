@@ -52,7 +52,7 @@ exports.getBoilersAll = (req, res) => {
                 });
                 break;
             case 'type':
-                Boiler.find({company: reqQueryObject[key]})
+                Boiler.find({type: reqQueryObject[key]})
                 .then(data => {
                     if (Object.keys(data).length === 0 ){ //sin el lenght me devuelve vacio si le pongo un ID de type
                         return res.status(404).send({msg: `Doesn't exist boiler ${key} with id: ${reqQueryObject[key]}.`});

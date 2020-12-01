@@ -4,14 +4,14 @@ var router = require("express").Router();
 
 // CRUD routes
 // Create boiler in the database.
-router.post('/', building.createBoiler);
+router.post('/', boiler.createBoiler);
 // Retrieve all boilers or get boiler by its attributes from the database.
-router.get('/', building.getBoilersAll);
+router.get('/', boiler.getBoilersAll);
 // Retrieve boiler by id from the database.
-router.get('/:id', building.getBoilerById);
+router.get('/:id', boiler.getBoilerById);
 // Update boiler by id in the database.
-router.put('/:id', building.updateBoilerById);
+router.put('/:id', boiler.updateBoilerById);
 // Delete boiler by id from the database.
-router.delete('/:id', building.deleteBoilerById);
+router.delete('/:id', boiler.deleteBoilerById);
 
 module.exports = router;
