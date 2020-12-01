@@ -7,7 +7,6 @@ const buildingSchema = new Schema({
         required: [true, 'Give me a name at least!']
     },
     address: String,
-    email: String,
     boilers: [ObjectId],
     company: ObjectId
 }, { _id: true, timestamps: true });
