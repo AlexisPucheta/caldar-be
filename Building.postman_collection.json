@@ -1,0 +1,246 @@
+{
+	"info": {
+		"_postman_id": "cfdf2339-d0ee-46a5-b9c9-f86dd6304c02",
+		"name": "Building",
+		"description": "This is the building entity documentation to understand how to use CRUD operations with it.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Building - Get all",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:4000/api/building/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "4000",
+					"path": [
+						"api",
+						"building",
+						""
+					]
+				},
+				"description": "This request is to get all buildings from the database."
+			},
+			"response": []
+		},
+		{
+			"name": "Building - Get by id",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:4000/api/building/5fb963f8fc13ae10c20003e8",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "4000",
+					"path": [
+						"api",
+						"building",
+						"5fb963f8fc13ae10c20003e8"
+					]
+				},
+				"description": "This request is to get building by id from the database."
+			},
+			"response": []
+		},
+		{
+			"name": "Building - Get by name",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:4000/api/building?name=MacroGenics, Inc.",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "4000",
+					"path": [
+						"api",
+						"building"
+					],
+					"query": [
+						{
+							"key": "name",
+							"value": "MacroGenics, Inc."
+						}
+					]
+				},
+				"description": "This request is to get building by name from the database."
+			},
+			"response": []
+		},
+		{
+			"name": "Building - Get by address",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:4000/api/building?address=1 Oxford Place",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "4000",
+					"path": [
+						"api",
+						"building"
+					],
+					"query": [
+						{
+							"key": "address",
+							"value": "1 Oxford Place"
+						}
+					]
+				},
+				"description": "This request is to get building by address from the database."
+			},
+			"response": []
+		},
+		{
+			"name": "Building - Get by boiler id",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:4000/api/building?boilers=5fb963f8fc13ae10c200043e",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "4000",
+					"path": [
+						"api",
+						"building"
+					],
+					"query": [
+						{
+							"key": "boilers",
+							"value": "5fb963f8fc13ae10c200043e"
+						}
+					]
+				},
+				"description": "This request is to get building by boiler id from the database."
+			},
+			"response": []
+		},
+		{
+			"name": "Building - Get by company",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:4000/api/building?company=5fb963f8fc13ae10c20003ec",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "4000",
+					"path": [
+						"api",
+						"building"
+					],
+					"query": [
+						{
+							"key": "company",
+							"value": "5fb963f8fc13ae10c20003ec"
+						}
+					]
+				},
+				"description": "This request is to get building by company from the database."
+			},
+			"response": []
+		},
+		{
+			"name": "Building - Update by id",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"boilers\": [\r\n        \"5fb963f8fc13ae10c20003e9\"\r\n    ],\r\n    \"name\": \"MacroGenics, Inc.\",\r\n    \"address\": \"1 Oxford Place\",\r\n    \"company\": \"5fb963f8fc13ae10c21003ec\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:4000/api/building/5fb963f8fc13ae10c20003e8",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "4000",
+					"path": [
+						"api",
+						"building",
+						"5fb963f8fc13ae10c20003e8"
+					]
+				},
+				"description": "This request is to update building by id in the database."
+			},
+			"response": []
+		},
+		{
+			"name": "Building - Remove by id",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:4000/api/building/5fb963f8fc13ae10c20003e8",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "4000",
+					"path": [
+						"api",
+						"building",
+						"5fb963f8fc13ae10c20003e8"
+					]
+				},
+				"description": "This request is to delete building by id from the database."
+			},
+			"response": []
+		},
+		{
+			"name": "Building - Create new one",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"boilers\": [\r\n        \"5fb963f8fc13ae10c20003e9\"\r\n    ],\r\n    \"name\": \"Golden, Inc.\",\r\n    \"address\": \"1 Oxford Place\",\r\n    \"company\": \"5fb963f8fc13ae10c21003ec\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:4000/api/building",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "4000",
+					"path": [
+						"api",
+						"building"
+					]
+				},
+				"description": "This request is to create a new building in the database."
+			},
+			"response": []
+		}
+	],
+	"protocolProfileBehavior": {}
+}
