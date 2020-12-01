@@ -1,5 +1,38 @@
 const companies = require ('../data/company.json');
 
+//company-controller.create
+exports.create = (req, res) => {
+    //Validate request
+    if (!req.body.name || !req.body.buildings) {
+        res.status(400).send( {message: "There is no data to create"});
+        return;
+    }
+    //Create company
+    const company = new Company ({
+        name: req.body.name,
+        buildings: req.body.buildings
+    });
+    //Save company
+    company
+        .save(company)
+        .then(data => {
+            res.send(data);
+        })
+        .catch(err => {
+            res.status(500).send({
+                message:
+                err.message || "There is an error creating a new company"
+            });
+        });
+};
+
+
+
+
+
+
+
+
 //company-controller.getAllCompanies
 exports.getCompaniesAll = (req, res) => {
     for (const key in req.query) {
