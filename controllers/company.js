@@ -46,7 +46,7 @@ exports.getCompanyById = (req, res) => {
     .then(data => {
         if (!data) {
             return res.status(404).send({
-                message: 'Company with id ${req.params.id} was not found'
+                message: `Company with id ${req.params.id} was not found`
             })
         }
         res.send(data)
@@ -59,7 +59,27 @@ exports.getCompanyById = (req, res) => {
     });
 };
 
+//company-controller.updateCompanyById
+exports.updateCompanyById = (req, res) => {
+    if (!req.body) {
+        return res.status(400).send({msg: `Data to update cannot be empty`});
+    }
+    if (!req.body.name || !req.body.buildings) {
+        return res.status(400).send({msg:`Content cannot be empty`});
+    }
 
+    Company.findByIdAndUpdate({_id: req.params.id}, req.body, {useFindAndModify: false})
+        .then(data => {
+            if (!data) {
+                return res.status(404).send({msg:`Company with id ${req.params.id}was not found`});
+            }   else {
+                return res.status(200).send({msg:`Company with id ${req.params.id}was updated`})
+            }
+        })
+        .catch(err => {
+            return res.status(500).send({msg: err.message || "Some error ocurred while updating company by id"})
+        })
+};
 
 //company-controller.getAllCompanies
 /*exports.getCompaniesAll = (req, res) => {
@@ -90,14 +110,17 @@ exports.getCompanyById = (req, res) => {
         res.status(400).json({msg: "No company with id: ${req.params.id}"});
     }
 };*/
-/* company-controller.deleteCompaniesById */
+//company-controller.deleteCompaniesById
 
 exports.deleteCompanyById = (req, res) => {
-    const found = companies.some(company => company._id.$oid === req.params.id);
-    if (found) {
-        res.json({msg:`Company with id ${req.params.id} was deleted`, companies: companies.filter(company => company._id.$oid !== req.params.id)});
-    } else {
-        res.status(400).json({msg: `No company with id: ${req.params.id}`});
-    }
+    Company.findByIdAndRemove({_id: req.params.id}, {useFindAndModify: false})
+    .then(data => {
+        res.status(200).send({
+            data,
+            msg:`Company with id: ${req.params.id}was deleted.`
+        });
+    })
+    .catch(err => {
+        return res.status(500).send({msg: err.message || "Some error curred while removing company by id"})
+    });
 };
-
