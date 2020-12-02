@@ -1,31 +1,48 @@
 const db = require('../models');
 const BoilerType = db.BoilerType;
 
-//get all boiler type or get boiler type by his attributes
-exports.getBoilerTypeAll = (req, res) => {
-    const reqQueryObject = req.query;
-    const key = Object.keys(reqQueryObject);
-
-    if (key[0] === undefined) {
-        BoilerType.find({})
+//Create a boiler type. At least desc is required
+exports.create = (req, res) => {
+    const boilerType = new BoilerType({
+        desc: req.body.desc
+    });
+    if (boilerType.desc !== undefined) {
+        boilerType
+            .save(boilerType)
             .then(data => {
-                return res.send(data)
+                res.send(data);
+            })
+            .catch(err => {
+                return res.send.status(500)({ msg: "Something went wrong!" });
             })
     } else {
-        switch (key[0]) {
-            case 'desc':
-                BoilerType.find({ desc: reqQueryObject[key] })
-                    .then(data => {
-                        if (Object.keys(data).length !== 0) {
-                            return res.send(data);
-                        } else {
-                            return res.status(400).send({ msg: `Doesn't exist that boiler type with a desc: ${reqQueryObject[key]}` });
-                        }
-                    })
-                    .catch(err => {
-                        return res.status(500).send({ msg: "ERROR" });
-                    })
-        }
+        return res.send({ msg: `Desc cannot be empty` });
+    }
+};
+
+//get all boiler type or get boiler type by his attributes
+exports.getBoilerTypeAll = (req, res) => {
+    const key = Object.keys(req.query);
+    if (JSON.stringify(req.query) == JSON.stringify({})) {
+        BoilerType.find({})
+            .then(data => {
+                return res.status(200).send(data);
+            })
+            .catch(err => {
+                return res.status(500).send({ msg: err.message || 'Some error ocurred while retrieving all Boiler types.' });
+            });
+    } else {
+        BoilerType.find(req.query)
+            .then(data => {
+                if (Object.keys(data).length !== 0) {
+                    return res.status(200).send(data);
+                } else {
+                    return res.status(404).send({ msg: `Doesn't exist any Boiler type with ${key}: ${req.query[key]}.` });
+                }
+            })
+            .catch(err => {
+                return res.status(500).send({ msg: err.message || `Some error ocurred while retrieving Boiler types by ${key}.` });
+            });
     }
 };
 
@@ -83,21 +100,3 @@ exports.putBoilerType = (req, res) => {
         });
 };
 
-//Create a boiler type. At least desc is required
-exports.create = (req, res) => {
-    const boilerType = new BoilerType({
-        desc: req.body.desc
-    });
-    if (boilerType.desc !== undefined) {
-        boilerType
-            .save(boilerType)
-            .then(data => {
-                res.send(data);
-            })
-            .catch(err => {
-                return res.send.status(500)({ msg: "Something went wrong!" });
-            })
-    } else {
-        return res.send({ msg: `Desc cannot be empty` });
-    }
-};
