@@ -12,7 +12,7 @@ exports.createBuilding = (req, res) => {
         building
             .save(building)
             .then(data => {
-                res.status(200).send({
+                res.send({
                     data, 
                     msg: 'Building was succesfully created.'
                 });
@@ -31,7 +31,7 @@ exports.getBuildingsAll = (req, res) => {
     if (JSON.stringify(req.query)==JSON.stringify({})) {
         Building.find({})
         .then(data => {
-            return res.status(200).send(data);
+            return res.send(data);
         })
         .catch(err => {
             return res.status(500).send({msg: err.message || 'Some error ocurred while retrieving all buildings.'});
@@ -40,7 +40,7 @@ exports.getBuildingsAll = (req, res) => {
         Building.find(req.query)
         .then(data => {
             if (Object.keys(data).length !== 0) {
-                return res.status(200).send(data);
+                return res.send(data);
             } else {
                 return res.status(404).send({msg: `Doesn't exist any building with ${key}: ${req.query[key]}.`});
             }
@@ -51,14 +51,14 @@ exports.getBuildingsAll = (req, res) => {
     }
 };
 
-//Retrieve building by id from the database.
+// Retrieve building by id from the database.
 exports.getBuildingById = (req, res) => {
     Building.findById(req.params.id)
     .then(data => {
         if (!data) {
             return res.status(404).send({msg: `Doesn't exist building with id: ${req.params.id}.`});
         }
-        res.status(200).send(data);
+        res.send(data);
     })
     .catch(err => {
         return res.status(500).send({msg: err.message || 'Some error ocurred while retrieving building by id.'});
@@ -68,35 +68,37 @@ exports.getBuildingById = (req, res) => {
 // Update building by id in the database.
 exports.updateBuildingById = (req, res) => {
     if (!req.body) {
-        return res.status(400).send({msg: `Data to update cannot be empty!`});
+        return res.status(400).send({msg: 'Data to update cannot be empty!'});
     }
     if (!req.body.name || !req.body.address || !req.body.boilers || !req.body.company) {
-        return res.status(400).send({msg:`Content cannot be empty!`});
+        return res.status(400).send({msg: 'Content cannot be empty!'});
     }
 
     Building.findOneAndUpdate({_id: req.params.id}, req.body, {useFindAndModify: false})
         .then(data => {
             if (!data) {
-                return res.status(404).send({msg:`Building with id: ${req.params.id} was not found.`});
+                return res.status(404).send({msg: `Building with id: ${req.params.id} was not found.`});
             } else {
-                return res.status(200).send({msg:`Building with id: ${req.params.id} was successfully updated.`});
+                return res.send({
+                    data,
+                    msg: `Building with id: ${req.params.id} was successfully updated.`});
             }
         })
         .catch(err => {
-            return res.status(500).send({msg: err.message || 'Some error ocurred while updating building by id.'})
-        })
+            return res.status(500).send({msg: err.message || 'Some error ocurred while updating building by id.'});
+        });
 };
 
 // Delete building by id from the database.
 exports.deleteBuildingById = (req, res) => {
     Building.findOneAndRemove({_id: req.params.id}, {useFindAndModify: false})
     .then(data => {
-        res.status(200).send({
+        res.send({
             data, 
             msg: `Building with id: ${req.params.id} was succesfully deleted.`
         });
     })
     .catch(err => {
-        return res.status(500).send({msg: err.message || 'Some error ocurred while removing building by id.'})
+        return res.status(500).send({msg: err.message || 'Some error ocurred while removing building by id.'});
     });
 };
