@@ -1,5 +1,4 @@
-const db = require('../models');
-const BoilerType = db.BoilerType;
+const BoilerType = require("../models/boiler-type")
 
 //Create a boiler type. At least desc is required
 exports.create = (req, res) => {
