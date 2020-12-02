@@ -1,3 +1,4 @@
+const { json } = require('express');
 const db = require ('../models');
 const Company = db.Company;
 
@@ -27,17 +28,30 @@ exports.createCompany = (req, res) => {
         });
 };
 
-//company-controller.getAllCompany
+//company-controller.getAllCompanies or getCompaniesByAttribute
 exports.getCompaniesAll = (req, res) => {
-    Company.find({})
-    .then(data => {
-        res.send(data);
-    })
-    .catch(err => {
-        res.status(500).send(
-            "There is some error while requesting Companies"
-        );
-    });
+    const key = Object.keys(req.query);
+    if (JSON.stringify(req.query)==JSON.stringify({})) {
+        Company.find({})
+        .then(data => {
+            return res.status(200).send(data);
+        })
+        .catch(err => {
+            return res.status(500).send({msg: err.message || "Some error ocurred while requesting all companies"});
+        });
+    }   else {
+            Company.find(req.query)
+            .then(data => {
+                if (Object.keys(data).length !==0) {
+                    return res.status(200).send(data);
+                } else {
+                    return res.status(404).send({msg:`Doesn't exist any company with ${key}: ${req.query[key]}.`});
+                }
+            })
+            .catch(err => {
+                return res.status(500).send({msg: err.message || `Some error ocurred while retrieving companies by ${key}`});
+            })
+        }
 };
 
 //company-controller.getCompanyById
@@ -81,6 +95,20 @@ exports.updateCompanyById = (req, res) => {
         })
 };
 
+//company-controller.deleteCompaniesById
+exports.deleteCompanyById = (req, res) => {
+    Company.findByIdAndRemove({_id: req.params.id}, {useFindAndModify: false})
+    .then(data => {
+        res.status(200).send({
+            data,
+            msg:`Company with id: ${req.params.id}was deleted.`
+        });
+    })
+    .catch(err => {
+        return res.status(500).send({msg: err.message || "Some error curred while removing company by id"})
+    });
+};
+
 //company-controller.getAllCompanies
 /*exports.getCompaniesAll = (req, res) => {
     for (const key in req.query) {
@@ -110,17 +138,16 @@ exports.updateCompanyById = (req, res) => {
         res.status(400).json({msg: "No company with id: ${req.params.id}"});
     }
 };*/
-//company-controller.deleteCompaniesById
 
-exports.deleteCompanyById = (req, res) => {
-    Company.findByIdAndRemove({_id: req.params.id}, {useFindAndModify: false})
+//company-controller.getAllCompany
+/*exports.getCompaniesAll = (req, res) => {
+    Company.find({})
     .then(data => {
-        res.status(200).send({
-            data,
-            msg:`Company with id: ${req.params.id}was deleted.`
-        });
+        res.send(data);
     })
     .catch(err => {
-        return res.status(500).send({msg: err.message || "Some error curred while removing company by id"})
+        res.status(500).send(
+            "There is some error while requesting Companies"
+        );
     });
-};
+};*/
