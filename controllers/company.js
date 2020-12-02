@@ -1,6 +1,4 @@
-const { json } = require('express');
-const db = require ('../models');
-const Company = db.Company;
+const Company = require ("../models/company");
 
 //company-controller.create
 exports.createCompany = (req, res) => {
