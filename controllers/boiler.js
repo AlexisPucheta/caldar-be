@@ -10,7 +10,7 @@ exports.createBoiler = (req, res) => {
         boiler
             .save(boiler)
             .then(data => {
-                res.status(200).send({
+                res.send({
                     data, 
                     msg: 'Boiler was succesfully created.'
                 });
@@ -29,7 +29,7 @@ exports.getBoilersAll = (req, res) => {
     if (JSON.stringify(req.query)==JSON.stringify({})) {
         Boiler.find({})
         .then(data => {
-            return res.status(200).send(data);
+            return res.send(data);
         })
         .catch(err => {
             return res.status(500).send({msg: err.message || 'Some error ocurred while retrieving all boilers.'});
@@ -38,7 +38,7 @@ exports.getBoilersAll = (req, res) => {
         Boiler.find(req.query)
         .then(data => {
             if (Object.keys(data).length !== 0) {
-                return res.status(200).send(data);
+                return res.send(data);
             } else {
                 return res.status(404).send({msg: `Doesn't exist any boiler with ${key}: ${req.query[key]}.`});
             }
@@ -49,14 +49,14 @@ exports.getBoilersAll = (req, res) => {
     }
 };
 
-//Retrieve boiler by id from the database.
+// Retrieve boiler by id from the database.
 exports.getBoilerById = (req, res) => {
     Boiler.findById(req.params.id)
     .then(data => {
         if (!data) {
             return res.status(404).send({msg: `Doesn't exist boiler with id: ${req.params.id}.`});
         }
-        res.status(200).send(data);
+        res.send(data);
     })
     .catch(err => {
         return res.status(500).send({msg: err.message || 'Some error ocurred while retrieving boiler by id.'});
@@ -66,35 +66,37 @@ exports.getBoilerById = (req, res) => {
 // Update boiler by id in the database.
 exports.updateBoilerById = (req, res) => {
     if (!req.body) {
-        return res.status(400).send({msg: `Data to update cannot be empty!`});
+        return res.status(400).send({msg: 'Data to update cannot be empty!'});
     }
     if (!req.body.name || !req.body.type) {
-        return res.status(400).send({msg:`Content cannot be empty!`});
+        return res.status(400).send({msg: 'Content cannot be empty!'});
     }
 
     Boiler.findOneAndUpdate({_id: req.params.id}, req.body, {useFindAndModify: false})
         .then(data => {
             if (!data) {
-                return res.status(404).send({msg:`Boiler with id: ${req.params.id} was not found.`});
+                return res.status(404).send({msg: `Boiler with id: ${req.params.id} was not found.`});
             } else {
-                return res.status(200).send({msg:`Boiler with id: ${req.params.id} was successfully updated.`});
+                return res.send({
+                    data,
+                    msg: `Boiler with id: ${req.params.id} was successfully updated.`});
             }
         })
         .catch(err => {
-            return res.status(500).send({msg: err.message || 'Some error ocurred while updating boiler by id.'})
-        })
+            return res.status(500).send({msg: err.message || 'Some error ocurred while updating boiler by id.'});
+        });
 };
 
 // Delete boiler by id from the database.
 exports.deleteBoilerById = (req, res) => {
     Boiler.findOneAndRemove({_id: req.params.id}, {useFindAndModify: false})
     .then(data => {
-        res.status(200).send({
+        res.send({
             data, 
             msg: `Boiler with id: ${req.params.id} was succesfully deleted.`
         });
     })
     .catch(err => {
-        return res.status(500).send({msg: err.message || 'Some error ocurred while removing boiler by id.'})
+        return res.status(500).send({msg: err.message || 'Some error ocurred while removing boiler by id.'});
     });
 };
