@@ -12,6 +12,6 @@ router.delete('/:id', boilerType.deleteBoilerTypeById);
 //Update boiler type by ID
 router.put('/:id', boilerType.putBoilerType);
 //Create boiler type
-router.post('/', boilerType.create);
+router.post('/', boilerType.createBoilerType);
 
 module.exports = router;
