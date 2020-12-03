@@ -9,5 +9,5 @@ module.exports = {
   Technician,
   Building,
   Boiler,
-  Company
+  Company,
 };
