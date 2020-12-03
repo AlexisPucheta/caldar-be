@@ -1,66 +1,104 @@
-const buildings = require('../data/building.json');
+const Building = require("../models/building.js");
 
+// Create building in the database. At least name is required
+exports.createBuilding = (req, res) => {
+    const building = new Building({
+        name: req.body.name,
+        address: req.body.address,
+        boilers: req.body.boilers,
+        company: req.body.company
+    });
+    if (building.name !== undefined) {
+        building
+            .save(building)
+            .then(data => {
+                res.send({
+                    data, 
+                    msg: 'Building was succesfully created.'
+                });
+            })
+            .catch(err => {
+                return res.status(500).send({msg: err.message || 'Some error ocurred while creating new building.'});
+            });
+    } else {
+        return res.status(400).send({msg: 'Name cannot be empty!'});
+    }
+};
+
+// Retrieve all buildings or get building by its attributes from the database.
 exports.getBuildingsAll = (req, res) => {
-
-    const reqQueryObject = req.query;
-    const key = Object.keys(reqQueryObject);
-
-    if (JSON.stringify(reqQueryObject)==JSON.stringify({})) {
-        res.status(200).json(buildings)
+    const key = Object.keys(req.query);
+    if (JSON.stringify(req.query)==JSON.stringify({})) {
+        Building.find({})
+        .then(data => {
+            return res.send(data);
+        })
+        .catch(err => {
+            return res.status(500).send({msg: err.message || 'Some error ocurred while retrieving all buildings.'});
+        });
     } else {
-        switch (key[0]) {
-            case '_id':
-                if (buildings.some(building => building._id.$oid === reqQueryObject[key])) {
-                    return res.status(200).json(buildings.filter(building => building._id.$oid === reqQueryObject[key]));
-                } else {
-                    return res.status(400).json({msg: `No building with ${key}: ${reqQueryObject[key]}`});
-                }
-            case 'name':
-                if (buildings.some(building => building.name === reqQueryObject[key])) {
-                    return res.status(200).json(buildings.filter(building => building.name === reqQueryObject[key]));
-                } else {
-                    return res.status(400).json({msg: `No building with ${key}: ${reqQueryObject[key]}`});
-                }
-            case 'address':
-                if (buildings.some(building => building.address === reqQueryObject[key])) {
-                    return res.status(200).json(buildings.filter(building => building.address === reqQueryObject[key]));
-                } else {
-                    return res.status(400).json({msg: `No building with ${key}: ${reqQueryObject[key]}`});
-                }
-            case 'boilers':
-                for (let i = 0 ; i < buildings.length; i++) {
-                    var found = buildings[i].boilers.some(boiler => boiler.$oid === reqQueryObject[key]);
-                    if (buildings[i].boilers.some(boiler => boiler.$oid === reqQueryObject[key])) {
-                        return res.status(200).json(buildings[i]);
-                    }
-                }
-                if (!found) {
-                    return res.status(400).json({msg: `No building with ${key}: ${reqQueryObject[key]}`});
-                }
-            case 'company':
-                if (buildings.some(building => building.company.$oid === reqQueryObject[key])) {
-                    return res.status(200).json(buildings.filter(building => building.company.$oid === reqQueryObject[key]));
-                } else {
-                    return res.status(400).json({msg: `No building with ${key}: ${reqQueryObject[key]}`});
-                }
-            default:
-                return res.status(400).json({msg: `Invalid attribute: ${key}`});
-        }
+        Building.find(req.query)
+        .then(data => {
+            if (Object.keys(data).length !== 0) {
+                return res.send(data);
+            } else {
+                return res.status(404).send({msg: `Doesn't exist any building with ${key}: ${req.query[key]}.`});
+            }
+        })
+        .catch(err => {
+            return res.status(500).send({msg: err.message || `Some error ocurred while retrieving buildings by ${key}.`});
+        });
     }
 };
 
+// Retrieve building by id from the database.
 exports.getBuildingById = (req, res) => {
-    if (buildings.some(building => building._id.$oid === req.params.id)) {
-        res.status(200).json(buildings.filter(building => building._id.$oid === req.params.id));
-    } else {
-        res.status(400).json({msg: `No building with id: ${req.params.id}`});
-    }
+    Building.findById(req.params.id)
+    .then(data => {
+        if (!data) {
+            return res.status(404).send({msg: `Doesn't exist building with id: ${req.params.id}.`});
+        }
+        res.send(data);
+    })
+    .catch(err => {
+        return res.status(500).send({msg: err.message || 'Some error ocurred while retrieving building by id.'});
+    });
 };
 
-exports.deleteBuildingById = (req, res) => {
-    if (buildings.some(building => building._id.$oid === req.params.id)) {
-        res.status(200).json({msg:`Building with id ${req.params.id} was deleted`, buildings: buildings.filter(building => building._id.$oid !== req.params.id)});
-    } else {
-        res.status(400).json({msg: `No building with id: ${req.params.id}`});
+// Update building by id in the database.
+exports.updateBuildingById = (req, res) => {
+    if (!req.body) {
+        return res.status(400).send({msg: 'Data to update cannot be empty!'});
     }
+    if (!req.body.name || !req.body.address || !req.body.boilers || !req.body.company) {
+        return res.status(400).send({msg: 'Content cannot be empty!'});
+    }
+
+    Building.findOneAndUpdate({_id: req.params.id}, req.body, {useFindAndModify: false})
+        .then(data => {
+            if (!data) {
+                return res.status(404).send({msg: `Building with id: ${req.params.id} was not found.`});
+            } else {
+                return res.send({
+                    data,
+                    msg: `Building with id: ${req.params.id} was successfully updated.`});
+            }
+        })
+        .catch(err => {
+            return res.status(500).send({msg: err.message || 'Some error ocurred while updating building by id.'});
+        });
+};
+
+// Delete building by id from the database.
+exports.deleteBuildingById = (req, res) => {
+    Building.findOneAndRemove({_id: req.params.id}, {useFindAndModify: false})
+    .then(data => {
+        res.send({
+            data, 
+            msg: `Building with id: ${req.params.id} was succesfully deleted.`
+        });
+    })
+    .catch(err => {
+        return res.status(500).send({msg: err.message || 'Some error ocurred while removing building by id.'});
+    });
 };
