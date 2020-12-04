@@ -110,6 +110,7 @@ exports.putBoilerType = (req, res) => {
           err.message || "Some error ocurred while updating boiler type by id.",
       });
     });
+  return false;
 };
 
 // Delete boiler type by id from the database

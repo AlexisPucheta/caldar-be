@@ -104,6 +104,7 @@ exports.updateCompanyById = (req, res) => {
         msg: err.message || "Some error ocurred while updating company by id",
       });
     });
+  return false;
 };
 
 // company-controller.deleteCompaniesById

@@ -112,6 +112,7 @@ exports.updateBuildingById = (req, res) => {
         msg: err.message || "Some error ocurred while updating building by id.",
       });
     });
+  return false;
 };
 
 // Delete building by id from the database.

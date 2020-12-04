@@ -120,6 +120,7 @@ exports.updateTechnicianById = (req, res) => {
           err.message || "Some error ocurred while updating technician by id.",
       });
     });
+  return undefined;
 };
 
 // Delete technician by id from the database.

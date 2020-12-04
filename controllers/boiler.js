@@ -104,6 +104,7 @@ exports.updateBoilerById = (req, res) => {
         msg: err.message || "Some error ocurred while updating boiler by id.",
       });
     });
+  return false;
 };
 
 // Delete boiler by id from the database.
