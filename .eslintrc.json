@@ -14,7 +14,7 @@
   },
   "plugins": ["prettier"],
   "rules": {
-    "prettier/prettier": ["error"],
+    "prettier/prettier": ["error" , {"endOfLine": "crlf"}],
     "eol-last": ["error", "always"]
   },
   "overrides": [
