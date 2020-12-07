@@ -1,17 +1,28 @@
-const { model, Schema } = require("mongoose");
+const { ObjectId} = require("mongodb");
+const { model, Schema, Mongoose } = require("mongoose");
 
-const CompanySchema = new Schema(
+const CompanySchemaMongoose = new Schema(
   {
-    name: {
-      type: String,
-      required: true,
+    building: {
+      type: Mongoose.Schema.Types.ObjectId,
+      ref: 'Building'
     },
-    buildings: {
-      type: Array,
-      required: true,
-    },
+
+    name: String,
+
+    adress: String,
+
+    CIN: Number,
+
+    zip-code: String,
+
+    contact: String,
+
+    email: String,
+
+    phone: Number,
   },
   { _id: true, timestamps: true }
 );
 
-module.exports = model("Company", CompanySchema);
+module.exports = model("Company", CompanySchemaMongoose);

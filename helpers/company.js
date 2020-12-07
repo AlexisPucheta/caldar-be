@@ -17,7 +17,7 @@ const companySchema = Joi.object(
 
         phone: Joi.number().required(),
 
-        buildings: Joi.array().items(Joi.objectId()),
+        building: Joi.array().items(Joi.objectId()),
     }
 );
 
