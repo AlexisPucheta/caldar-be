@@ -1,23 +1,28 @@
 {
-    "env": {
-        "commonjs": true,
-        "es6": true,
-        "node": true
-    },
-    "extends": [
-        "eslint:recommended",
-        "airbnb-base",
-        "prettier"
-    ],
-    "globals": {
-        "Atomics": "readonly",
-        "SharedArrayBuffer": "readonly"
-    },
-    "parserOptions": {
-        "ecmaVersion": 2018
-    },
-    "plugins": ["prettier"],
-    "rules": {
-        "prettier/prettier": ["error"]
+  "env": {
+    "commonjs": true,
+    "es6": true,
+    "node": true
+  },
+  "extends": ["eslint:recommended", "airbnb-base", "prettier"],
+  "globals": {
+    "Atomics": "readonly",
+    "SharedArrayBuffer": "readonly"
+  },
+  "parserOptions": {
+    "ecmaVersion": 2018
+  },
+  "plugins": ["prettier"],
+  "rules": {
+    "prettier/prettier": ["error" , {"endOfLine": "crlf"}],
+    "eol-last": ["error", "always"]
+  },
+  "overrides": [
+    {
+      "files": ["./index.js"],
+      "rules": {
+        "no-console": ["off"]
+      }
     }
+  ]
 }

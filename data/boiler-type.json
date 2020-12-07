@@ -1,26 +1,26 @@
 [
-    {
-        "_id": {
-            "$oid": "5fbbb92ffc13ae4285000000"
-        },
-        "desc": "papa"
+  {
+    "_id": {
+      "$oid": "5fbbb92ffc13ae4285000000"
     },
-    {
-        "_id": {
-            "$oid": "5fbbb92ffc13ae4285000001"
-        },
-        "desc": "papa"
+    "desc": "papa"
+  },
+  {
+    "_id": {
+      "$oid": "5fbbb92ffc13ae4285000001"
     },
-    {
-        "_id": {
-            "$oid": "5fbbb92ffc13ae4285000002"
-        },
-        "desc": "non ligula pellentesque ultrices phasellus id sapien in sapien iaculis"
+    "desc": "papa"
+  },
+  {
+    "_id": {
+      "$oid": "5fbbb92ffc13ae4285000002"
     },
-    {
-        "_id": {
-            "$oid": "5fbbb92ffc13ae4285000003"
-        },
-        "desc": "nulla tempus vivamus in felis eu sapien cursus vestibulum proin eu mi nulla"
-    }
+    "desc": "non ligula pellentesque ultrices phasellus id sapien in sapien iaculis"
+  },
+  {
+    "_id": {
+      "$oid": "5fbbb92ffc13ae4285000003"
+    },
+    "desc": "nulla tempus vivamus in felis eu sapien cursus vestibulum proin eu mi nulla"
+  }
 ]
