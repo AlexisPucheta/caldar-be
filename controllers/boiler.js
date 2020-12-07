@@ -1,11 +1,29 @@
 const Boiler = require("../models/boiler.js");
+// const Building = require("../models/building.js");
+const boilerSchema = require("../helpers/boiler.js");
 
 // Create boiler in the database. At least name is required
-exports.createBoiler = (req, res) => {
+exports.createBoiler = async (req, res) => {
   const boiler = new Boiler({
-    name: req.body.name,
+    companyId: req.body.companyId,
+    buildingId: req.body.buildingId,
     type: req.body.type,
+    serialNumber: req.body.serialNumber,
+    manufacturingDate: req.body.manufacturingDate,
+    instalationDate: req.body.instalationDate,
+    location: req.body.location,
+    status: req.body.status,
   });
+
+  try {
+    const result = await boilerSchema.validateAsync(req.body);
+    boiler.save(boiler);
+    res.send(result);
+  } catch (error) {
+    res.send({ msg: `${error.message}` });
+  }
+};
+/*
   if (boiler.name !== undefined) {
     boiler
       .save(boiler)
@@ -23,7 +41,7 @@ exports.createBoiler = (req, res) => {
   }
   return res.status(400).send({ msg: "Name cannot be empty!" });
 };
-
+*/
 // Retrieve all boilers or get boiler by its attributes from the database.
 exports.getBoilersAll = (req, res) => {
   const key = Object.keys(req.query);
