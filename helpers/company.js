@@ -9,7 +9,7 @@ const companySchema = Joi.object(
 
         adress: Joi.string().required(),
 
-        zip-code: Joi.string().required(),
+        zipcode: Joi.string().required(),
 
         contact: Joi.string().required(),
 

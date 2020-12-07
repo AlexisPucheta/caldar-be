@@ -14,7 +14,7 @@ const CompanySchemaMongoose = new Schema(
 
     CIN: Number,
 
-    zip-code: String,
+    zipcode: String,
 
     contact: String,
 
