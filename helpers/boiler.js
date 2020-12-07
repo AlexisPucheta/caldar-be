@@ -2,21 +2,17 @@ const Joi = require("joi");
 Joi.objectId = require("joi-objectid")(Joi);
 
 const boilerSchema = Joi.object({
-  companyId: Joi.objectId(),
+  building: Joi.objectId(),
 
-  buildingId: Joi.objectId(),
-
-  type: Joi.objectId().required(),
+  type: Joi.string().pattern(new RegExp("[ABCD]")).required().length(1),
 
   serialNumber: Joi.number().required(),
 
-  manufacturingDate: Joi.date().required(),
+  manufacturingDate: Joi.date().required().less("now"),
 
-  instalationDate: Joi.date(),
+  instalationDate: Joi.date().less("now"),
 
-  location: Joi.string().required(),
-
-  status: Joi.string(),
+  status: Joi.string().required().lowercase(),
 });
 
 module.exports = boilerSchema;

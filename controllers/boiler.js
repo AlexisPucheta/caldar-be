@@ -1,47 +1,56 @@
 const Boiler = require("../models/boiler.js");
-// const Building = require("../models/building.js");
+const Building = require("../models/building.js");
 const boilerSchema = require("../helpers/boiler.js");
 
 // Create boiler in the database. At least name is required
 exports.createBoiler = async (req, res) => {
   const boiler = new Boiler({
-    companyId: req.body.companyId,
-    buildingId: req.body.buildingId,
+    building: req.body.building,
     type: req.body.type,
     serialNumber: req.body.serialNumber,
     manufacturingDate: req.body.manufacturingDate,
     instalationDate: req.body.instalationDate,
-    location: req.body.location,
     status: req.body.status,
   });
 
   try {
     const result = await boilerSchema.validateAsync(req.body);
-    boiler.save(boiler);
-    res.send(result);
-  } catch (error) {
-    res.send({ msg: `${error.message}` });
-  }
-};
-/*
-  if (boiler.name !== undefined) {
-    boiler
-      .save(boiler)
-      .then((data) => {
-        return res.send({
-          data,
-          msg: "Boiler was succesfully created.",
-        });
-      })
-      .catch((err) => {
-        return res.status(500).send({
-          msg: err.message || "Some error ocurred while creating new boiler.",
-        });
+    const doesExist = [];
+
+    if (boiler.building !== null) {
+      doesExist[0] = await Building.findById(boiler.building);
+      if (doesExist[0] === null) {
+        return res
+          .status(500)
+          .send({ msg: `Doesn't exist this building ID: ${boiler.building}` });
+      }
+    }
+
+    doesExist[1] = await Boiler.findOne({ serialNumber: boiler.serialNumber });
+    if (doesExist[1] !== null) {
+      return res.status(500).send({
+        msg: `This serialNumber: ${boiler.serialNumber} is already in use`,
       });
+    }
+
+    if (!(
+      boiler.status === "working" ||
+      boiler.status === "need repair" ||
+      boiler.status === "reserved" ||
+      boiler.status === "available")
+    ) {
+      return res.status(500).send({
+        msg: `working, need repair, reserved or available only. Not allow ${boiler.status}`,
+      });
+    }
+
+    boiler.save(boiler);
+    return res.send(result);
+  } catch (error) {
+    return res.send({ msg: `${error.message}` });
   }
-  return res.status(400).send({ msg: "Name cannot be empty!" });
 };
-*/
+
 // Retrieve all boilers or get boiler by its attributes from the database.
 exports.getBoilersAll = (req, res) => {
   const key = Object.keys(req.query);
