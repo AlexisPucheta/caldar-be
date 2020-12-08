@@ -3,7 +3,10 @@ const { model, Schema } = require("mongoose");
 
 const buildingSchemaMongoose = new Schema(
   {
-    company: ObjectId,
+    company: {
+      type: ObjectId,
+      ref: "Company",
+    },
 
     name: String,
 
@@ -19,7 +22,10 @@ const buildingSchemaMongoose = new Schema(
 
     obs: String,
 
-    boilers: [ObjectId],
+    boilers: {
+      type: [ObjectId],
+      ref: "Boiler",
+    },
   },
   { _id: true, timestamps: true }
 );

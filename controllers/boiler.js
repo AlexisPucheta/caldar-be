@@ -2,6 +2,7 @@ const Boiler = require("../models/boiler.js");
 const Building = require("../models/building.js");
 const boilerSchema = require("../helpers/boiler.js");
 
+
 // Create boiler in the database. At least name is required
 exports.createBoiler = async (req, res) => {
   const boiler = new Boiler({
@@ -14,7 +15,7 @@ exports.createBoiler = async (req, res) => {
   });
 
   try {
-    const result = await boilerSchema.validateAsync(req.body);
+    await boilerSchema.validateAsync(req.body);
     const doesExist = [];
     if (boiler.building !== undefined) {
       doesExist[0] = await Building.findById(boiler.building);
@@ -56,7 +57,7 @@ exports.createBoiler = async (req, res) => {
     );
 
     boiler.save(boiler);
-    return res.send(result);
+    return res.send(boiler);
   } catch (error) {
     return res.send({ msg: `${error.message}` });
   }
@@ -164,24 +165,40 @@ exports.updateBoilerById = async (req, res) => {
       { useFindAndModify: false }
     );
 
+    await Building.findOneAndUpdate(
+      { _id: doc.building },
+      {
+        $pull: {
+          boilers: req.params.id,
+        },
+      },
+      { useFindAndModify: false }
+    )
+
     doc = await Boiler.findById(req.params.id);
     return res.send(doc);
   } catch (err) {
-    return res.send({ msg: `Que paso? ${err}` });
+    return res.send({ msg: `${err}` });
   }
 };
+
 // Delete boiler by id from the database.
-exports.deleteBoilerById = (req, res) => {
-  Boiler.findOneAndRemove({ _id: req.params.id }, { useFindAndModify: false })
-    .then((data) => {
-      res.send({
-        data,
-        msg: `Boiler with id: ${req.params.id} was succesfully deleted.`,
-      });
-    })
-    .catch((err) => {
-      return res.status(500).send({
-        msg: err.message || "Some error ocurred while removing boiler by id.",
-      });
-    });
+exports.deleteBoilerById = async (req, res) => {
+   try {
+    const boiler = await Boiler.findById(req.params.id)
+    await Building.findOneAndUpdate(
+      { _id: boiler.building },
+      {
+        $pull: {
+          boilers: req.params.id,
+        },
+      },
+      { useFindAndModify: false }
+    );
+    await Boiler.findOneAndRemove({_id:req.params.id}, { useFindAndModify: false });
+    res.send({msg:`Boiler with id: ${req.params.id} was deleted successfully`});
+   } 
+   catch (err){
+     return res.send(err);
+   }
 };
