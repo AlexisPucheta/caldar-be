@@ -117,8 +117,7 @@ exports.getBoilerById = (req, res) => {
 // Update boiler by id in the database.
 exports.updateBoilerById = async (req, res) => {
   try {
-    const result = await boilerSchema.validateAsync(req.body);
-    console.log(result);
+    await boilerSchema.validateAsync(req.body);
     let doc = await Boiler.findById(req.params.id);
     const boiler = {
       building: req.body.building,
@@ -150,10 +149,11 @@ exports.updateBoilerById = async (req, res) => {
         msg: `working, need repair, reserved or available only. Not allow ${boiler.status}`,
       });
     }
-    console.log("this is boiler", boiler);
+
     await Boiler.findByIdAndUpdate(req.params.id, boiler, {
       useFindAndModify: false,
     });
+
     await Building.findOneAndUpdate(
       { _id: boiler.building },
       {
@@ -163,12 +163,12 @@ exports.updateBoilerById = async (req, res) => {
       },
       { useFindAndModify: false }
     );
+
     doc = await Boiler.findById(req.params.id);
-    res.send(doc);
+    return res.send(doc);
   } catch (err) {
     return res.send({ msg: `Que paso? ${err}` });
   }
-  return false;
 };
 // Delete boiler by id from the database.
 exports.deleteBoilerById = (req, res) => {
