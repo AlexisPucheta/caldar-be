@@ -1,32 +1,75 @@
 const Building = require("../models/building.js");
+const Company = require("../models/company.js");
+const Boiler = require("../models/boiler.js");
+const buildingSchema = require("../helpers/building.js");
 
 // Create building in the database. At least name is required
-exports.createBuilding = (req, res) => {
+exports.createBuilding = async (req, res) => {
   const building = new Building({
+    company: req.body.company,
     name: req.body.name,
     address: req.body.address,
+    zipcode: req.body.zipcode,
+    contact: req.body.contact,
+    phone: req.body.phone,
+    email: req.body.email,
+    obs: req.body.obs,
     boilers: req.body.boilers,
-    company: req.body.company,
   });
-  if (building.name !== undefined) {
-    building
-      .save(building)
-      .then((data) => {
-        return res.send({
-          data,
-          msg: "Building was succesfully created.",
+
+  try {
+    await buildingSchema.validateAsync(req.body);
+    let doesExist;
+
+    if (building.company !== undefined) {
+      doesExist = await Company.findById(building.company);
+      if (doesExist === null) {
+        return res
+          .status(500)
+          .send({ msg: `Doesn't exist this company ID: ${building.company}` });
+      }
+    }
+
+    if (building.boilers !== undefined) {
+      doesExist = await Boiler.find({ _id: building.boilers });
+      if (doesExist.length === building.boilers.length) {
+        doesExist.forEach((boiler) => {
+          if (boiler.building !== undefined) {
+            return res.status(500).send({
+              msg: `This boiler id ${boiler.id} already belongs to a building ${boiler.building}`,
+            });
+          }
+          return false;
         });
-      })
-      .catch((err) => {
-        return res.status(500).send({
-          msg: err.message || "Some error ocurred while creating new building.",
-        });
-      });
+      } else {
+        return res
+          .status(500)
+          .send({ msg: `Some of the boilers doesn't exist` });
+      }
+    }
+
+    await Company.findOneAndUpdate(
+      { _id: building.company },
+      {
+        $push: {
+          buildings: building.id,
+        },
+      },
+      { useFindAndModify: false }
+    );
+
+    building.save(building);
+    return res.send({
+      building,
+      msg: "Building was successfully created",
+    });
+  } catch (error) {
+    return res.send({ msg: `${error.message}` });
   }
-  return res.status(400).send({ msg: "Name cannot be empty!" });
 };
 
 // Retrieve all buildings or get building by its attributes from the database.
+/*
 exports.getBuildingsAll = (req, res) => {
   const key = Object.keys(req.query);
   if (JSON.stringify(req.query) === JSON.stringify({})) {
@@ -58,10 +101,10 @@ exports.getBuildingsAll = (req, res) => {
         });
       });
   }
-};
+}; */
 
 // Retrieve building by id from the database.
-exports.getBuildingById = (req, res) => {
+/* exports.getBuildingById = (req, res) => {
   Building.findById(req.params.id)
     .then((data) => {
       if (!data) {
@@ -113,11 +156,52 @@ exports.updateBuildingById = (req, res) => {
       });
     });
   return false;
-};
+}; */
 
 // Delete building by id from the database.
-exports.deleteBuildingById = (req, res) => {
-  Building.findOneAndRemove({ _id: req.params.id }, { useFindAndModify: false })
+/* exports.deleteBuildingById = (req, res) => {
+  Building.findById(req.params.id)
+    .then(() => {
+      Boiler.deleteMany({ building: { $in: req.params.id } })
+        .then((data) => {
+          console.log("Borro Boilers");
+          res.send({
+            data,
+            msg: "Boilers were succesfully deleted",
+          });
+        })
+        .catch((err) => {
+          return res.status(500).send({
+            msg:
+              err.message ||
+              "Some error ocurred while removing boilers of building.",
+          });
+        });
+    })
+    .then(() => {
+      Building.deleteOne({ _id: req.params.id })
+        .then((data) => {
+          console.log("Borro Building");
+          res.send({
+            data,
+            msg: "Building was succesfully deleted",
+          });
+        })
+        .catch((err) => {
+          return res.status(500).send({
+            msg: err.message || "Some error ocurred while removing building.",
+          });
+        });
+    })
+    .catch((err) => {
+      return res.status(500).send({
+        msg: err.message || "Some error ocurred while removing building by id.",
+      });
+    });
+  /* .then((data) => {
+      Building.delete({ _id: { $in: data._in } })
+    }) */
+/* Building.findOneAndRemove({ _id: req.params.id }, { useFindAndModify: false })
     .then((data) => {
       res.send({
         data,
@@ -129,4 +213,4 @@ exports.deleteBuildingById = (req, res) => {
         msg: err.message || "Some error ocurred while removing building by id.",
       });
     });
-};
+}; */

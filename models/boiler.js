@@ -3,6 +3,10 @@ const { model, Schema } = require("mongoose");
 
 const boilerSchema = new Schema(
   {
+    building: {
+      type: ObjectId,
+      ref: "Building",
+    },
     name: {
       type: String,
       required: [true, "Give me a name at least!"],

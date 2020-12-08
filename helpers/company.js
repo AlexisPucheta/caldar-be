@@ -1,8 +1,8 @@
 const Joi = require("joi");
 Joi.objectId = require("joi-objectid")(Joi);
 
-const buildingSchema = Joi.object({
-  company: Joi.objectId(),
+const companySchema = Joi.object({
+  cin: Joi.number().required(),
 
   name: Joi.string().required(),
 
@@ -12,13 +12,11 @@ const buildingSchema = Joi.object({
 
   contact: Joi.string().required(),
 
-  phone: Joi.number().required(),
-
   email: Joi.string().email().required(),
 
-  obs: Joi.string(),
+  phone: Joi.number().required(),
 
-  boilers: Joi.array().items(Joi.objectId()),
+  buildings: Joi.array().items(Joi.objectId()),
 });
 
-module.exports = buildingSchema;
+module.exports = companySchema;
