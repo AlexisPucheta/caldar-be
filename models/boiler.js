@@ -11,7 +11,7 @@ const boilerSchemaMongoose = new Schema(
 
     manufacturingDate: String,
 
-    instalationDate: String,
+    installationDate: String,
 
     status: String,
   },

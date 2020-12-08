@@ -10,7 +10,7 @@ const boilerSchema = Joi.object({
 
   manufacturingDate: Joi.date().required().less("now"),
 
-  instalationDate: Joi.date().less("now"),
+  installationDate: Joi.date().less("now"),
 
   status: Joi.string().required().lowercase(),
 });

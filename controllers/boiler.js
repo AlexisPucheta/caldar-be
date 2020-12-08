@@ -9,15 +9,14 @@ exports.createBoiler = async (req, res) => {
     type: req.body.type,
     serialNumber: req.body.serialNumber,
     manufacturingDate: req.body.manufacturingDate,
-    instalationDate: req.body.instalationDate,
+    installationDate: req.body.installationDate,
     status: req.body.status,
   });
 
   try {
     const result = await boilerSchema.validateAsync(req.body);
     const doesExist = [];
-
-    if (boiler.building !== null) {
+    if (boiler.building !== undefined) {
       doesExist[0] = await Building.findById(boiler.building);
       if (doesExist[0] === null) {
         return res
@@ -33,16 +32,28 @@ exports.createBoiler = async (req, res) => {
       });
     }
 
-    if (!(
-      boiler.status === "working" ||
-      boiler.status === "need repair" ||
-      boiler.status === "reserved" ||
-      boiler.status === "available")
+    if (
+      !(
+        boiler.status === "working" ||
+        boiler.status === "need repair" ||
+        boiler.status === "reserved" ||
+        boiler.status === "available"
+      )
     ) {
       return res.status(500).send({
         msg: `working, need repair, reserved or available only. Not allow ${boiler.status}`,
       });
     }
+
+    await Building.findOneAndUpdate(
+      { _id: boiler.building },
+      {
+        $push: {
+          boilers: boiler.id,
+        },
+      },
+      { useFindAndModify: false }
+    );
 
     boiler.save(boiler);
     return res.send(result);
@@ -104,36 +115,61 @@ exports.getBoilerById = (req, res) => {
 };
 
 // Update boiler by id in the database.
-exports.updateBoilerById = (req, res) => {
-  if (!req.body) {
-    return res.status(400).send({ msg: "Data to update cannot be empty!" });
-  }
-  if (!req.body.name || !req.body.type) {
-    return res.status(400).send({ msg: "Content cannot be empty!" });
-  }
+exports.updateBoilerById = async (req, res) => {
+  try {
+    const result = await boilerSchema.validateAsync(req.body);
+    console.log(result);
+    let doc = await Boiler.findById(req.params.id);
+    const boiler = {
+      building: req.body.building,
+      type: req.body.type,
+      serialNumber: doc.serialNumber, // cant change this value
+      manufacturingDate: req.body.manufacturingDate,
+      installationDate: req.body.installationDate,
+      status: req.body.status,
+    };
 
-  Boiler.findOneAndUpdate({ _id: req.params.id }, req.body, {
-    useFindAndModify: false,
-  })
-    .then((data) => {
-      if (!data) {
-        return res
-          .status(404)
-          .send({ msg: `Boiler with id: ${req.params.id} was not found.` });
+    if (req.body.building !== undefined) {
+      const doesExist = await Building.findById(req.body.building);
+      if (doesExist === null) {
+        return res.status(500).send({
+          msg: `Doesn't exist this building ID: ${req.body.building}`,
+        });
       }
-      return res.send({
-        data,
-        msg: `Boiler with id: ${req.params.id} was successfully updated.`,
-      });
-    })
-    .catch((err) => {
+    }
+
+    if (
+      !(
+        boiler.status === "working" ||
+        boiler.status === "need repair" ||
+        boiler.status === "reserved" ||
+        boiler.status === "available"
+      )
+    ) {
       return res.status(500).send({
-        msg: err.message || "Some error ocurred while updating boiler by id.",
+        msg: `working, need repair, reserved or available only. Not allow ${boiler.status}`,
       });
+    }
+    console.log("this is boiler", boiler);
+    await Boiler.findByIdAndUpdate(req.params.id, boiler, {
+      useFindAndModify: false,
     });
+    await Building.findOneAndUpdate(
+      { _id: boiler.building },
+      {
+        $push: {
+          boilers: req.params.id,
+        },
+      },
+      { useFindAndModify: false }
+    );
+    doc = await Boiler.findById(req.params.id);
+    res.send(doc);
+  } catch (err) {
+    return res.send({ msg: `Que paso? ${err}` });
+  }
   return false;
 };
-
 // Delete boiler by id from the database.
 exports.deleteBoilerById = (req, res) => {
   Boiler.findOneAndRemove({ _id: req.params.id }, { useFindAndModify: false })
