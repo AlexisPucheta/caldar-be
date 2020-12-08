@@ -1,11 +1,11 @@
-const { ObjectId} = require("mongodb");
+const { ObjectId } = require("mongodb");
 const { model, Schema } = require("mongoose");
 
 const companySchemaMongoose = new Schema(
   {
     buildings: {
       type: [ObjectId],
-      ref: "Building"
+      ref: "Building",
     },
 
     name: String,

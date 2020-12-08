@@ -1,4 +1,5 @@
-const Technician = require("../models/technician");
+const Technician = require("../models/technician.js");
+// const technicianSchema = require("../helpers/technician.js");
 
 // Create technician in the database. At least full_name is required
 exports.createTechnician = (req, res) => {
