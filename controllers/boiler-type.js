@@ -1,28 +1,55 @@
 const BoilerType = require("../models/boiler-type");
+const Technician = require("../models/technician.js");
+const boilerTypeSchema = require("../helpers/boiler-type.js");
 
-// Create a boiler type. At least desc is required
-exports.createBoilerType = (req, res) => {
+// Create a boiler type. At least model is required
+exports.createBoilerType = async (req, res) => {
   const boilerType = new BoilerType({
-    desc: req.body.desc,
+    boilerType: req.body.boilerType,
+    stdMaintainance: req.body.stdMaintainance,
+    technician: req.body.technician,
+    obs: req.body.obs,
   });
-  if (boilerType.desc !== undefined) {
-    boilerType
-      .save(boilerType)
-      .then((data) => {
-        return res.send({
-          data,
-          msg: "Boiler type was succesfully created",
+  try {
+    await boilerTypeSchema.validateAsync(req.body);
+    let doesExist;
+    if (boilerType.technician !== undefined) {
+      doesExist = await Technician.findById(boilerType.technician);
+      if (doesExist === null) {
+        return res.status(500).send({
+          msg: `Doesn't exist this technician ID: ${boilerType.technician}`,
         });
-      })
-      .catch((err) => {
-        return res.send.status(500).send({
-          msg:
-            err.message ||
-            "Something error ocurred while creating a new Boiler type!",
-        });
+      }
+    }
+    doesExist = await BoilerType.findOne({
+      boilerType: boilerType.boilerType,
+    });
+    if (doesExist !== null) {
+      return res.status(500).send({
+        msg: `This boilerType: ${boilerType.boilerType} is already created`,
       });
+    }
+    if (boilerType.boilerType !== undefined) {
+      boilerType
+        .save(boilerType)
+        .then((data) => {
+          return res.send({
+            data,
+            msg: "Boiler type was succesfully created",
+          });
+        })
+        .catch((err) => {
+          return res.send.status(500).send({
+            msg:
+              err.message ||
+              "Something error ocurred while creating a new Boiler type!",
+          });
+        });
+    }
+  } catch (error) {
+    return res.send({ msg: `${error.message}` });
   }
-  return res.status(400).send({ msg: "Desc cannot be empty" });
+  return false;
 };
 
 // Retrieve all boiler types or boiler type by its attributes from the database.
