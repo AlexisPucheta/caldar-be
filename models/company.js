@@ -3,14 +3,14 @@ const { model, Schema } = require("mongoose");
 
 const CompanySchemaMongoose = new Schema(
   {
-    building: {
-      type: Mongoose.Schema.Types.ObjectId,
+    buildings: {
+      type: [ObjectId],
       ref: 'Building'
     },
 
     name: String,
 
-    adress: String,
+    address: String,
 
     CIN: Number,
 

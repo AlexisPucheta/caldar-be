@@ -7,7 +7,7 @@ const companySchema = Joi.object(
 
         name: Joi.string().required(),
 
-        adress: Joi.string().required(),
+        address: Joi.string().required(),
 
         zipcode: Joi.string().required(),
 
@@ -17,8 +17,8 @@ const companySchema = Joi.object(
 
         phone: Joi.number().required(),
 
-        building: Joi.array().items(Joi.objectId()),
+        buildings: Joi.array().items(Joi.objectId()),
     }
 );
 
-module.exports = companySchema
+module.exports = companySchema;
