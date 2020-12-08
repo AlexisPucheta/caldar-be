@@ -1,5 +1,5 @@
 const { ObjectId} = require("mongodb");
-const { model, Schema, Mongoose } = require("mongoose");
+const { model, Schema } = require("mongoose");
 
 const CompanySchemaMongoose = new Schema(
   {
