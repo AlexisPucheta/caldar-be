@@ -3,19 +3,15 @@ const { model, Schema } = require("mongoose");
 
 const boilerSchemaMongoose = new Schema(
   {
-    companyId: ObjectId,
+    building: ObjectId,
 
-    buildingId: ObjectId,
-
-    type: ObjectId,
+    type: String,
 
     serialNumber: Number,
 
     manufacturingDate: String,
 
-    instalationDate: String,
-
-    location: String,
+    installationDate: String,
 
     status: String,
   },
