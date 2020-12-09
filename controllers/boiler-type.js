@@ -13,12 +13,14 @@ exports.createBoilerType = async (req, res) => {
   try {
     await boilerTypeSchema.validateAsync(req.body);
     let doesExist;
-    if (boilerType.technician !== undefined) {
-      doesExist = await Technician.findById(boilerType.technician);
-      if (doesExist === null) {
-        return res.status(500).send({
-          msg: `Doesn't exist this technician ID: ${boilerType.technician}`,
-        });
+    if (req.body.technician !== undefined) {
+      for (i = 0; i < ((boilerType.technician.length)); i++) {
+        let doesExist = await Technician.findById(boilerType.technician[i]);
+        if ( doesExist === null) {
+            return res.status(500).send({
+              msg: `Doesn't exist this technician ID: ${req.body.technician}`,
+            });
+        }
       }
     }
     doesExist = await BoilerType.findOne({
@@ -119,18 +121,19 @@ exports.updateBoilerTypeById = async (req, res) => {
     await boilerTypeSchema.validateAsync(req.body);
     let doc = await BoilerType.findById(req.params.id);
     if (req.body.technician !== undefined) {
-      const doesExist = await Technician.findById(req.body.technician);
-      if (doesExist === null) {
-        return res.status(500).send({
-          msg: `Doesn't exist this technician ID: ${req.body.technician}`,
-        });
+      for (i = 0; i < ((newBoilerType.technician.length)); i++) {
+        let doesExist = await Technician.findById(newBoilerType.technician[i]);
+        if ( doesExist === null) {
+            return res.status(500).send({
+              msg: `Doesn't exist this technician ID: ${req.body.technician}`,
+            });
+        }
       }
     }
     await BoilerType.findByIdAndUpdate(req.params.id, newBoilerType, {
       useFindAndModify: false,
     });
 
-    // if (boilerType.technician !== undefined) {
     await Technician.updateMany(
       { _id: newBoilerType.technician },
       {
@@ -167,34 +170,3 @@ exports.deleteBoilerTypeById = (req, res) => {
       });
     });
 };
-
-/* for (i = 0; i < ((boilerType.technician.length) - 1); i++) {
-  if (Technician.findById(req.body.boilerType) === undefined) {
-  await Technician.findOneAndUpdate(
-    { _id: boilerType.technician[i] },
-    {
-      $push: {
-        types: req.body.boilerType,
-      },
-    },
-    { useFindAndModify: false }
-  )};
-  doc = await BoilerType.findById(req.params.id);
-
-} return res.send(doc); */
-
-/*      const technicians = await Technician.find({ _id: boilerType.technician });
-      technicians.forEach((technician) => {
-        Technician.findOneAndUpdate(
-          { _id: technician.id },
-          {
-            $push: {
-              knowledge: boilerType.boilerType,
-            },
-          },
-          { useFindAndModify: false },
-        );
-      });
-      doc = await BoilerType.findById(req.params.id)
-      return res.send(doc);
-      }; */
