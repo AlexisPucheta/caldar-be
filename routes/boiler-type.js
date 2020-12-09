@@ -9,7 +9,7 @@ router.get("/:id", boilerType.getBoilerTypeById);
 // Delete boiler type by ID
 router.delete("/:id", boilerType.deleteBoilerTypeById);
 // Update boiler type by ID
-router.put("/:id", boilerType.putBoilerType);
+router.put("/:id", boilerType.updateBoilerTypeById);
 // Create boiler type
 router.post("/", boilerType.createBoilerType);
 
