@@ -4,6 +4,8 @@ Joi.objectId = require("joi-objectid")(Joi);
 const serviceSchema = Joi.object({
   boiler: Joi.objectId().required(),
 
+  technician: Joi.objectId(),
+
   status: Joi.string().required(),
 
   priority: Joi.string(),

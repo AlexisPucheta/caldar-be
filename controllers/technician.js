@@ -1,33 +1,57 @@
 const Technician = require("../models/technician.js");
-// const technicianSchema = require("../helpers/technician.js");
+const technicianSchema = require("../helpers/technician.js");
+const BoilerType = require("../models/boiler-type.js");
+const Service = require("../models/service.js");
 
-// Create technician in the database. At least full_name is required
-exports.createTechnician = (req, res) => {
-  const technician = new Technician({
-    full_name: req.body.full_name,
-    phone: req.body.phone,
-    birthday: req.body.birthday,
-    email: req.body.email,
-    boilers: req.body.boilers,
-    types: req.body.types,
-  });
-  if (technician.full_name !== undefined) {
-    technician
-      .save(technician)
-      .then((data) => {
-        return res.send({
-          data,
-          msg: "Technician was succesfully created.",
-        });
-      })
-      .catch((err) => {
+// Create technician in the database.
+exports.createTechnician = async (req, res) => {
+  try {
+    await technicianSchema.validateAsync(req.body);
+
+    const technician = new Technician({
+      service: req.body.service,
+      fullname: req.body.fullname,
+      email: req.body.email,
+      phone: req.body.phone,
+      address: req.body.address,
+      dateOfBirth: req.body.dateOfBirth,
+      knowledge: req.body.knowledge,
+      obs: req.body.obs,
+    });
+
+    if (technician.service.length !== 0) {
+      const doesExist = await Service.findById(technician.service);
+      if (doesExist === null) {
         return res.status(500).send({
-          msg:
-            err.message || "Some error ocurred while creating new technician.",
+          msg: `Doesn't exist this service ID: ${technician.service}`,
         });
+      }
+    }
+
+    if (technician.knowledge !== undefined) {
+      const boilerType = await BoilerType.find({
+        boilerType: technician.knowledge,
       });
+      if (boilerType.length !== technician.knowledge.length) {
+        return res.status(500).send({
+          msg: `Doesn't exist some of this boiler-type: ${technician.knowledge}`,
+        });
+      }
+    }
+
+    await Service.updateMany(
+      { _id: technician.service },
+      {
+        technician: technician.id,
+      },
+      { useFindAndModify: false }
+    );
+
+    technician.save();
+    return res.send(technician);
+  } catch (error) {
+    return res.send({ msg: `${error.message}` });
   }
-  return res.status(400).send({ msg: "Full name cannot be empty!" });
 };
 
 // Retrieve all technicians or get technician by its attributes from the database.

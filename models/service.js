@@ -5,6 +5,8 @@ const serviceSchemaMongoose = new Schema(
   {
     boiler: ObjectId,
 
+    technician: ObjectId,
+
     status: String,
 
     prioriry: String,

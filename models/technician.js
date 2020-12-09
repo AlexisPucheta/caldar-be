@@ -15,7 +15,7 @@ const technicianSchemaMongoose = new Schema(
 
     dateOfBirth: Date,
 
-    knowledge: String,
+    knowledge: [String],
 
     obs: String,
   },

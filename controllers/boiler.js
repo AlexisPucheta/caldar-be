@@ -1,6 +1,7 @@
 const Boiler = require("../models/boiler.js");
 const Building = require("../models/building.js");
 const boilerSchema = require("../helpers/boiler.js");
+const Service = require("../models/service.js");
 
 // Create boiler in the database. At least name is required
 exports.createBoiler = async (req, res) => {
@@ -185,23 +186,28 @@ exports.updateBoilerById = async (req, res) => {
 exports.deleteBoilerById = async (req, res) => {
   try {
     const boiler = await Boiler.findById(req.params.id);
-    await Building.findOneAndUpdate(
-      { _id: boiler.building },
-      {
-        $pull: {
-          boilers: req.params.id,
+    if (boiler !== null) {
+      await Building.findOneAndUpdate(
+        { _id: boiler.building },
+        {
+          $pull: {
+            boilers: req.params.id,
+          },
         },
-      },
-      { useFindAndModify: false }
-    );
-    await Boiler.findOneAndRemove(
-      { _id: req.params.id },
-      { useFindAndModify: false }
-    );
-    return res.send({
-      msg: `Boiler with id: ${req.params.id} was deleted successfully`,
-    });
+        { useFindAndModify: false }
+      );
+      await Boiler.deleteOne({ _id: req.params.id });
+
+      await Service.deleteMany({ boiler: req.params.id });
+
+      return res.send({
+        msg: `Boiler with id: ${req.params.id} was deleted successfully`,
+      });
+    }
+    return res
+      .status(500)
+      .send({ msg: `This boiler ID: ${req.params.id} doesnt exist` });
   } catch (err) {
-    return res.send(err);
+    return res.send({ msg: err.message || "Error undefined" });
   }
 };

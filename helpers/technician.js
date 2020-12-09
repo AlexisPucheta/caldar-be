@@ -14,9 +14,7 @@ const technicianSchema = Joi.object({
 
   dateOfBirth: Joi.date().less("now").required(),
 
-  knowledge: Joi.array()
-    .items(Joi.string().pattern(new RegExp("[ABCD]")).required().length(1))
-    .default(null),
+  knowledge: Joi.array().items(Joi.string().uppercase()),
 
   obs: Joi.string(),
 });
