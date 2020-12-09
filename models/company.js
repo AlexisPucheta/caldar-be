@@ -1,11 +1,11 @@
 const { ObjectId} = require("mongodb");
 const { model, Schema } = require("mongoose");
 
-const CompanySchemaMongoose = new Schema(
+const companySchemaMongoose = new Schema(
   {
     buildings: {
       type: [ObjectId],
-      ref: 'Building'
+      ref: "Building",
     },
 
     name: String,
@@ -26,3 +26,5 @@ const CompanySchemaMongoose = new Schema(
 );
 
 module.exports = model("Company", CompanySchemaMongoose);
+
+

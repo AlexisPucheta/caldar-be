@@ -1,17 +1,33 @@
 const { ObjectId } = require("mongodb");
 const { model, Schema } = require("mongoose");
 
-const buildingSchema = new Schema(
+const buildingSchemaMongoose = new Schema(
   {
-    name: {
-      type: String,
-      required: [true, "Give me a name at least!"],
+    company: {
+      type: ObjectId,
+      ref: "Company",
     },
+
+    name: String,
+
     address: String,
-    boilers: [ObjectId],
-    company: ObjectId,
+
+    zipcode: String,
+
+    contact: String,
+
+    phone: Number,
+
+    email: String,
+
+    obs: String,
+
+    boilers: {
+      type: [ObjectId],
+      ref: "Boiler",
+    },
   },
   { _id: true, timestamps: true }
 );
 
-module.exports = model("Building", buildingSchema);
+module.exports = model("Building", buildingSchemaMongoose);
