@@ -108,36 +108,44 @@ exports.getBoilerTypeById = (req, res) => {
 };
 
 // Update boiler type by id. All register are needed.
-exports.putBoilerType = (req, res) => {
-  if (!req.body) {
-    return res.status(400).send({
-      message: "Data to update cannot be empty",
-    });
-  }
-  if (!req.body.desc) {
-    return res.status(400).send({ msg: "Content cannot be empty" });
-  }
-  BoilerType.findOneAndUpdate({ _id: req.params.id }, req.body, {
-    useFindAndModify: false,
-  })
-    .then((data) => {
-      if (!data) {
-        return res.status(404).send({
-          msg: `Boiler type with id=${req.params.id} was not found`,
+exports.updateBoilerTypeById = async (req, res) => {
+  const newBoilerType = {
+    boilerType: req.body.boilerType,
+    stdMaintainance: req.body.stdMaintainance,
+    technician: req.body.technician,
+    obs: req.body.obs,
+  };
+  try {
+    await boilerTypeSchema.validateAsync(req.body);
+    let doc = await BoilerType.findById(req.params.id);
+    if (req.body.technician !== undefined) {
+      const doesExist = await Technician.findById(req.body.technician);
+      if (doesExist === null) {
+        return res.status(500).send({
+          msg: `Doesn't exist this technician ID: ${req.body.technician}`,
         });
       }
-      return res.send({
-        data,
-        msg: `Boiler type with id=${req.params.id} was update successfully`,
-      });
-    })
-    .catch((err) => {
-      return res.status(500).send({
-        msg:
-          err.message || "Some error ocurred while updating boiler type by id.",
-      });
+    }
+    await BoilerType.findByIdAndUpdate(req.params.id, newBoilerType, {
+      useFindAndModify: false,
     });
-  return false;
+
+    // if (boilerType.technician !== undefined) {
+    await Technician.updateMany(
+      { _id: newBoilerType.technician },
+      {
+        $addToSet: {
+          knowledge: newBoilerType.boilerType,
+        },
+      },
+      { useFindAndModify: false }
+    );
+
+    doc = await BoilerType.findById(req.params.id);
+    return res.send(doc);
+  } catch (err) {
+    return res.send({ msg: `${err}` });
+  }
 };
 
 // Delete boiler type by id from the database
@@ -159,3 +167,34 @@ exports.deleteBoilerTypeById = (req, res) => {
       });
     });
 };
+
+/* for (i = 0; i < ((boilerType.technician.length) - 1); i++) {
+  if (Technician.findById(req.body.boilerType) === undefined) {
+  await Technician.findOneAndUpdate(
+    { _id: boilerType.technician[i] },
+    {
+      $push: {
+        types: req.body.boilerType,
+      },
+    },
+    { useFindAndModify: false }
+  )};
+  doc = await BoilerType.findById(req.params.id);
+
+} return res.send(doc); */
+
+/*      const technicians = await Technician.find({ _id: boilerType.technician });
+      technicians.forEach((technician) => {
+        Technician.findOneAndUpdate(
+          { _id: technician.id },
+          {
+            $push: {
+              knowledge: boilerType.boilerType,
+            },
+          },
+          { useFindAndModify: false },
+        );
+      });
+      doc = await BoilerType.findById(req.params.id)
+      return res.send(doc);
+      }; */
