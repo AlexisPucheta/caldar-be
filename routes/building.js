@@ -9,7 +9,7 @@ router.get("/", building.getBuildingsAll);
 // Retrieve building by id from the database.
 router.get("/:id", building.getBuildingById);
 // Update building by id in the database.
-// router.put("/:id", building.updateBuildingById);
+router.put("/:id", building.updateBuildingById);
 // Delete building by id from the database.
 router.delete("/:id", building.deleteBuildingById);
 
