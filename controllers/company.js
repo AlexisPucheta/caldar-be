@@ -1,28 +1,64 @@
-const Company = require("../models/company");
+const Company = require("../models/company.js");
+const companySchema = require("../helpers/company.js");
+const Building = require("../models/building.js");
+const building = require("../models/building.js");
 
-// company-controller.create
-exports.createCompany = (req, res) => {
-  // Validate request
-  if (!req.body.name || !req.body.buildings) {
-    res.status(400).send({ message: "There is no data to create" });
-    return;
-  }
-  // Create company
-  const company = new Company({
+
+// Create company in the database.
+
+exports.createCompany = async (req, res) => {
+  const company = new Company ({
     name: req.body.name,
-    buildings: req.body.buildings,
+    cin: req.body.cin,
+    adress: req.body.adress,
+    zipcode: req.body.zipcode,
+    contact: req.body.contact,
+    email: req.body.email,
+    phone: req.body.phone,
+    building: req.body.building,
   });
-  // Save company
-  company
-    .save(company)
-    .then((data) => {
-      res.send(data);
-    })
-    .catch((err) => {
-      res.status(500).send({
-        message: err.message || "There is an error creating a new company",
-      });
+
+  try {
+    const result = await companySchema.validateAsync(req.body);
+    const doesExist = [];
+    if (company.building !== undefined) {
+      doesExist[0] = await building.findById(company.building);
+      if (doesExist[0] === null) {
+        return res
+          .status(500)
+          .send({ msg:` Doesn't exist this building ID: ${company.building}`});
+      }
+    }
+
+  doesExist[1] = await Company.findOne({ name: company.name });
+  if (doesExist[1] !== null) {
+    return res.status(500).send({
+      msg: `This name: ${company.name} is already taken`
     });
+  }
+
+  doesExist [1] = await Company.findOne({ cin: company.cin});
+  if (doesExist[1] !== null) {
+    return res.status(500).send({
+      msg: `This cin: ${company.cin} is already taken`
+    });
+  }
+
+  await Company.findOneAndUpdate(
+    {_id: company.building},
+    {
+      $push: {
+        company: company.id,
+      },
+    },
+    { useFindAndModify: false}
+  );
+
+  company.save(company);
+  return res.send(result);
+  } catch (err) {
+    return res.send({ msg: `${error.message}`})
+  };
 };
 
 // company-controller.getAllCompanies or getCompaniesByAttribute
@@ -77,48 +113,84 @@ exports.getCompanyById = (req, res) => {
     });
 };
 
-// company-controller.updateCompanyById
-exports.updateCompanyById = (req, res) => {
-  if (!req.body) {
-    return res.status(400).send({ msg: `Data to update cannot be empty` });
-  }
-  if (!req.body.name || !req.body.buildings) {
-    return res.status(400).send({ msg: `Content cannot be empty` });
-  }
+// Update company by id in database
 
-  Company.findByIdAndUpdate({ _id: req.params.id }, req.body, {
-    useFindAndModify: false,
-  })
-    .then((data) => {
-      if (!data) {
-        return res
-          .status(404)
-          .send({ msg: `Company with id ${req.params.id}was not found` });
+exports.updateCompanyById = async (req, res) => {
+  try {
+    await companySchema.validateAsync(req.body);
+    let doc = await Company.findById(req.params.id);
+    const company = {
+      name: req.body.name,
+      cin: req.body.cin,
+      adress: req.body.adress,
+      zipcode: req.body.zipcode,
+      contact: req.body.contact,
+      email: req.body.email,
+      phone: req.body.phone,
+      building: req.body.building,
+    };
+
+    if (req.body.building !== undefined) {
+      const doesExist = await Building.findById(req.body.building);
+      if (doesExist === null) {
+        return res.status(500).send({
+          msg: `Doesn't exist this building ID: ${req.body.building}`
+        });
       }
-      return res
-        .status(200)
-        .send({ msg: `Company with id ${req.params.id}was updated` });
-    })
-    .catch((err) => {
-      return res.status(500).send({
-        msg: err.message || "Some error ocurred while updating company by id",
-      });
+    }
+
+    await Company.findByIdAndUpdate(req.params.id, company, {
+      useFindAndModify: false,
     });
-  return false;
+
+    await Building.findOneAndUpdate(
+      {_id: company.building},
+      {
+        $push: {
+          company: req.params.id,
+        },
+      },
+      { useFindAndModify: false}
+    );
+    company.save(company);
+    return res.send(company);
+  } catch (error) {
+    return res.send({msg: `${error.message}`});
+  }
 };
 
-// company-controller.deleteCompaniesById
-exports.deleteCompanyById = (req, res) => {
-  Company.findByIdAndRemove({ _id: req.params.id }, { useFindAndModify: false })
-    .then((data) => {
-      res.status(200).send({
-        data,
-        msg: `Company with id: ${req.params.id}was deleted.`,
+// Delete company by id from database
+
+exports.deleteCompanyById = async (req, res) => {
+  try {
+    const company = await Company.findById(req.params.id);
+
+    if (company !== null) {
+      if (company.building !== undefined) {
+        await building.findOneAndUpdate(
+          { _id: company.building},
+          {
+            $pull: {
+              company: req.params.id,
+            },
+          },
+          { useFindAndModify: false }
+        );
+      }
+
+      await Company.deleteOne({ _id: req.params.id});
+
+      return res.send({
+        company,
+        msg: `Company with id: ${req.params.id}was succesfully deleted`
       });
-    })
-    .catch((err) => {
-      return res.status(500).send({
-        msg: err.message || "Some error curred while removing company by id",
-      });
+    }
+    return res
+      .status(404)
+      .send ({ msg:`Company with id: ${req.params.id}was not found`});
+  } catch (err) {
+    return res.status(400).send ({
+      msg: err.message || "Some error ocurred while deleting company"
     });
+  }
 };
