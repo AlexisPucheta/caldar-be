@@ -196,7 +196,7 @@ exports.deleteServiceById = async (req, res) => {
     }
     await Service.deleteOne({ _id: req.params.id });
 
-    await Technician.updateOne(
+    await Technician.updateMany(
       { services: req.params.id },
       {
         $pull: {
