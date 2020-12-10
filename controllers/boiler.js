@@ -41,20 +41,7 @@ exports.createBoiler = async (req, res) => {
         msg: `This serialNumber: ${boiler.serialNumber} is already in use`,
       });
     }
-
-    if (
-      !(
-        boiler.status === "working" ||
-        boiler.status === "need repair" ||
-        boiler.status === "reserved" ||
-        boiler.status === "available"
-      )
-    ) {
-      return res.status(500).send({
-        msg: `working, need repair, reserved or available only. Not allow ${boiler.status}`,
-      });
-    }
-
+    
     await Building.findOneAndUpdate(
       { _id: boiler.building },
       {
