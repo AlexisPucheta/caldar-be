@@ -3,9 +3,15 @@ const { model, Schema } = require("mongoose");
 
 const serviceSchemaMongoose = new Schema(
   {
-    boiler: ObjectId,
+    boiler: {
+      type: ObjectId,
+      ref: "Boiler",
+    },
 
-    technician: ObjectId,
+    technician: {
+      type: ObjectId,
+      ref: "Technician",
+    },
 
     status: String,
 

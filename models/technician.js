@@ -3,7 +3,10 @@ const { model, Schema } = require("mongoose");
 
 const technicianSchemaMongoose = new Schema(
   {
-    service: [ObjectId],
+    services: {
+      type: [ObjectId],
+      ref: "Service",
+    },
 
     fullname: String,
 
@@ -15,7 +18,10 @@ const technicianSchemaMongoose = new Schema(
 
     dateOfBirth: Date,
 
-    knowledge: [String],
+    knowledge: {
+      type: [String],
+      ref: "BoilerType",
+    },
 
     obs: String,
   },

@@ -131,69 +131,70 @@ exports.updateBuildingById = async (req, res) => {
   try {
     let building = await Building.findById(req.params.id);
 
-    if (building !== null) {
-      await buildingSchema.validateAsync(req.body);
-
-      const updatedBuilding = {
-        company: req.body.company,
-        name: req.body.name,
-        address: req.body.address,
-        zipcode: req.body.zipcode,
-        contact: req.body.contact,
-        phone: req.body.phone,
-        email: req.body.email,
-        obs: req.body.obs,
-        boilers: req.body.boilers,
-      };
-
-      if (updatedBuilding.company !== undefined) {
-        const company = await Company.findById(updatedBuilding.company);
-        if (company === null) {
-          return res.status(404).send({
-            msg: `Doesn't exist this company ID: ${updatedBuilding.company}.`,
-          });
-        }
-      }
-
-      if (updatedBuilding.boilers !== undefined) {
-        const boilers = await Boiler.find({ _id: updatedBuilding.boilers });
-        if (boilers.length !== updatedBuilding.boilers.length) {
-          return res
-            .status(404)
-            .send({ msg: "Some of the boilers doesn't exist." });
-        }
-      }
-
-      await Building.findByIdAndUpdate(req.params.id, updatedBuilding, {
-        useFindAndModify: false,
-      });
-
-      await Company.updateOne(
-        { _id: updatedBuilding.company },
-        {
-          $addToSet: {
-            building: req.params.id,
-          },
-        }
-      );
-
-      await Boiler.updateMany(
-        { _id: updatedBuilding.boilers },
-        {
-          building: req.params.id,
-        }
-      );
-
-      building = await Building.findById(req.params.id);
-
-      return res.send({
-        building,
-        msg: "Building was successfully updated.",
-      });
+    if (building === null) {
+      return res
+        .status(404)
+        .send({ msg: `Building with ID: ${req.params.id} was not found.` });
     }
-    return res
-      .status(404)
-      .send({ msg: `Building with ID: ${req.params.id} was not found.` });
+
+    await buildingSchema.validateAsync(req.body);
+
+    const updatedBuilding = {
+      company: req.body.company,
+      name: req.body.name,
+      address: req.body.address,
+      zipcode: req.body.zipcode,
+      contact: req.body.contact,
+      phone: req.body.phone,
+      email: req.body.email,
+      obs: req.body.obs,
+      boilers: req.body.boilers,
+    };
+
+    if (updatedBuilding.company !== undefined) {
+      const company = await Company.findById(updatedBuilding.company);
+      if (company === null) {
+        return res.status(404).send({
+          msg: `Doesn't exist this company ID: ${updatedBuilding.company}.`,
+        });
+      }
+    }
+
+    if (updatedBuilding.boilers !== undefined) {
+      const boilers = await Boiler.find({ _id: updatedBuilding.boilers });
+      if (boilers.length !== updatedBuilding.boilers.length) {
+        return res
+          .status(404)
+          .send({ msg: "Some of the boilers doesn't exist." });
+      }
+    }
+
+    await Building.findByIdAndUpdate(req.params.id, updatedBuilding, {
+      useFindAndModify: false,
+    });
+
+    await Company.updateOne(
+      { _id: updatedBuilding.company },
+      {
+        $addToSet: {
+          building: req.params.id,
+        },
+      }
+    );
+
+    await Boiler.updateMany(
+      { _id: updatedBuilding.boilers },
+      {
+        building: req.params.id,
+      }
+    );
+
+    building = await Building.findById(req.params.id);
+
+    return res.send({
+      building,
+      msg: "Building was successfully updated.",
+    });
   } catch (err) {
     return res.status(500).send({
       msg: err.message || "Some error ocurred while updating building by ID.",
