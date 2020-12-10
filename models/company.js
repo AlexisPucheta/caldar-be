@@ -1,4 +1,4 @@
-const { ObjectId} = require("mongodb");
+const { ObjectId } = require("mongodb");
 const { model, Schema } = require("mongoose");
 
 const companySchemaMongoose = new Schema(
@@ -25,6 +25,4 @@ const companySchemaMongoose = new Schema(
   { _id: true, timestamps: true }
 );
 
-module.exports = model("Company", CompanySchemaMongoose);
-
-
+module.exports = model("Company", companySchemaMongoose);

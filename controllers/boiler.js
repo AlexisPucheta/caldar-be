@@ -1,5 +1,6 @@
 const Boiler = require("../models/boiler.js");
 const Building = require("../models/building.js");
+const BoilerType = require("../models/boiler-type.js");
 const boilerSchema = require("../helpers/boiler.js");
 const Service = require("../models/service.js");
 
@@ -16,18 +17,26 @@ exports.createBoiler = async (req, res) => {
       status: req.body.status,
     });
 
-    const doesExist = [];
+    let doesExist;
+    doesExist = await BoilerType.find({ boilerType: boiler.type });
+
+    if (doesExist === null) {
+      res
+        .status(500)
+        .send({ msg: `This type of boiler ${boiler.type} doesnt exist` });
+    }
+
     if (boiler.building !== undefined) {
-      doesExist[0] = await Building.findById(boiler.building);
-      if (doesExist[0] === null) {
+      doesExist = await Building.findById(boiler.building);
+      if (doesExist === null) {
         return res
           .status(500)
           .send({ msg: `Doesn't exist this building ID: ${boiler.building}` });
       }
     }
 
-    doesExist[1] = await Boiler.findOne({ serialNumber: boiler.serialNumber });
-    if (doesExist[1] !== null) {
+    doesExist = await Boiler.findOne({ serialNumber: boiler.serialNumber });
+    if (doesExist !== null) {
       return res.status(500).send({
         msg: `This serialNumber: ${boiler.serialNumber} is already in use`,
       });
@@ -129,8 +138,17 @@ exports.updateBoilerById = async (req, res) => {
       status: req.body.status,
     };
 
+    let doesExist;
+    doesExist = await BoilerType.find({ boilerType: boiler.type });
+
+    if (doesExist === null) {
+      res
+        .status(500)
+        .send({ msg: `This type of boiler ${boiler.type} doesnt exist` });
+    }
+
     if (req.body.building !== undefined) {
-      const doesExist = await Building.findById(req.body.building);
+      doesExist = await Building.findById(req.body.building);
       if (doesExist === null) {
         return res.status(500).send({
           msg: `Doesn't exist this building ID: ${req.body.building}`,

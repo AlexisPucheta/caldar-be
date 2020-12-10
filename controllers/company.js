@@ -3,11 +3,10 @@ const companySchema = require("../helpers/company.js");
 const Building = require("../models/building.js");
 const building = require("../models/building.js");
 
-
 // Create company in the database.
 
 exports.createCompany = async (req, res) => {
-  const company = new Company ({
+  const company = new Company({
     name: req.body.name,
     cin: req.body.cin,
     adress: req.body.adress,
@@ -24,41 +23,41 @@ exports.createCompany = async (req, res) => {
     if (company.building !== undefined) {
       doesExist[0] = await building.findById(company.building);
       if (doesExist[0] === null) {
-        return res
-          .status(500)
-          .send({ msg:` Doesn't exist this building ID: ${company.building}`});
+        return res.status(500).send({
+          msg: ` Doesn't exist this building ID: ${company.building}`,
+        });
       }
     }
 
-  doesExist[1] = await Company.findOne({ name: company.name });
-  if (doesExist[1] !== null) {
-    return res.status(500).send({
-      msg: `This name: ${company.name} is already taken`
-    });
-  }
+    doesExist[1] = await Company.findOne({ name: company.name });
+    if (doesExist[1] !== null) {
+      return res.status(500).send({
+        msg: `This name: ${company.name} is already taken`,
+      });
+    }
 
-  doesExist [1] = await Company.findOne({ cin: company.cin});
-  if (doesExist[1] !== null) {
-    return res.status(500).send({
-      msg: `This cin: ${company.cin} is already taken`
-    });
-  }
+    doesExist[1] = await Company.findOne({ cin: company.cin });
+    if (doesExist[1] !== null) {
+      return res.status(500).send({
+        msg: `This cin: ${company.cin} is already taken`,
+      });
+    }
 
-  await Company.findOneAndUpdate(
-    {_id: company.building},
-    {
-      $push: {
-        company: company.id,
+    await Company.findOneAndUpdate(
+      { _id: company.building },
+      {
+        $push: {
+          company: company.id,
+        },
       },
-    },
-    { useFindAndModify: false}
-  );
+      { useFindAndModify: false }
+    );
 
-  company.save(company);
-  return res.send(result);
+    company.save(company);
+    return res.send(result);
   } catch (err) {
-    return res.send({ msg: `${error.message}`})
-  };
+    return res.send({ msg: `${err.message}` });
+  }
 };
 
 // company-controller.getAllCompanies or getCompaniesByAttribute
@@ -118,7 +117,7 @@ exports.getCompanyById = (req, res) => {
 exports.updateCompanyById = async (req, res) => {
   try {
     await companySchema.validateAsync(req.body);
-    let doc = await Company.findById(req.params.id);
+    // const doc = await Company.findById(req.params.id);
     const company = {
       name: req.body.name,
       cin: req.body.cin,
@@ -134,7 +133,7 @@ exports.updateCompanyById = async (req, res) => {
       const doesExist = await Building.findById(req.body.building);
       if (doesExist === null) {
         return res.status(500).send({
-          msg: `Doesn't exist this building ID: ${req.body.building}`
+          msg: `Doesn't exist this building ID: ${req.body.building}`,
         });
       }
     }
@@ -144,18 +143,18 @@ exports.updateCompanyById = async (req, res) => {
     });
 
     await Building.findOneAndUpdate(
-      {_id: company.building},
+      { _id: company.building },
       {
         $push: {
           company: req.params.id,
         },
       },
-      { useFindAndModify: false}
+      { useFindAndModify: false }
     );
     company.save(company);
     return res.send(company);
   } catch (error) {
-    return res.send({msg: `${error.message}`});
+    return res.send({ msg: `${error.message}` });
   }
 };
 
@@ -168,7 +167,7 @@ exports.deleteCompanyById = async (req, res) => {
     if (company !== null) {
       if (company.building !== undefined) {
         await building.findOneAndUpdate(
-          { _id: company.building},
+          { _id: company.building },
           {
             $pull: {
               company: req.params.id,
@@ -178,19 +177,19 @@ exports.deleteCompanyById = async (req, res) => {
         );
       }
 
-      await Company.deleteOne({ _id: req.params.id});
+      await Company.deleteOne({ _id: req.params.id });
 
       return res.send({
         company,
-        msg: `Company with id: ${req.params.id}was succesfully deleted`
+        msg: `Company with id: ${req.params.id}was succesfully deleted`,
       });
     }
     return res
       .status(404)
-      .send ({ msg:`Company with id: ${req.params.id}was not found`});
+      .send({ msg: `Company with id: ${req.params.id}was not found` });
   } catch (err) {
-    return res.status(400).send ({
-      msg: err.message || "Some error ocurred while deleting company"
+    return res.status(400).send({
+      msg: err.message || "Some error ocurred while deleting company",
     });
   }
 };
