@@ -2,7 +2,7 @@ const BoilerType = require("../models/boiler-type.js");
 const Technician = require("../models/technician.js");
 const boilerTypeSchema = require("../helpers/boiler-type.js");
 
-// Create a boiler type. At least model is required
+// Create a boiler type in the database.
 exports.createBoilerType = async (req, res) => {
   try {
     await boilerTypeSchema.validateAsync(req.body);
