@@ -41,7 +41,7 @@ exports.createBoiler = async (req, res) => {
         msg: `This serialNumber: ${boiler.serialNumber} is already in use`,
       });
     }
-    
+
     await Building.findOneAndUpdate(
       { _id: boiler.building },
       {
