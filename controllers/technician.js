@@ -1,7 +1,7 @@
 const Technician = require("../models/technician.js");
-const technicianSchema = require("../helpers/technician.js");
 const BoilerType = require("../models/boiler-type.js");
 const Service = require("../models/service.js");
+const technicianSchema = require("../helpers/technician.js");
 
 // Create technician in the database.
 exports.createTechnician = async (req, res) => {

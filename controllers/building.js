@@ -3,7 +3,7 @@ const Company = require("../models/company.js");
 const Boiler = require("../models/boiler.js");
 const buildingSchema = require("../helpers/building.js");
 
-// Create building in the database. At least name is required
+// Create building in the database.
 exports.createBuilding = async (req, res) => {
   try {
     await buildingSchema.validateAsync(req.body);

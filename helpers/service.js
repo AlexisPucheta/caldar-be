@@ -6,11 +6,13 @@ const serviceSchema = Joi.object({
 
   technician: Joi.objectId(),
 
-  status: Joi.string().required(),
+  status: Joi.string()
+    .valid("need assignment", "assigned", "on progress", "completed")
+    .required(),
 
-  priority: Joi.string(),
+  priority: Joi.string().valid("high", "normal"),
 
-  type: Joi.string().required(),
+  type: Joi.string().valid("eventually", "monthly").required(),
 
   agreedDate: Joi.date().max("now"),
 

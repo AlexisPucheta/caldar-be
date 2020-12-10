@@ -12,7 +12,10 @@ const boilerSchema = Joi.object({
 
   installationDate: Joi.date().less("now"),
 
-  status: Joi.string().lowercase().required(),
+  status: Joi.string()
+    .lowercase()
+    .valid("working", "need repair", "reserved", "available")
+    .required(),
 });
 
 module.exports = boilerSchema;
