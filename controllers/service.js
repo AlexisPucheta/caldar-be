@@ -194,16 +194,19 @@ exports.deleteServiceById = async (req, res) => {
         .status(500)
         .send({ msg: `This service ID: ${req.params.id} doesnt exist` });
     }
-    await Service.deleteOne({ _id: req.params.id });
 
-    await Technician.updateMany(
-      { services: req.params.id },
+    await Technician.findOneAndUpdate(
+      { _id: service.technician },
       {
         $pull: {
           services: req.params.id,
         },
-      }
+      },
+      { useFindAndModify: false }
     );
+
+    await Service.deleteOne({ _id: req.params.id });
+
     return res.send({
       msg: `Service with id: ${req.params.id} was deleted successfully`,
     });
