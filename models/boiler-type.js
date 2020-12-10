@@ -14,7 +14,7 @@ const boilerTypeSchemaMongoose = new Schema(
 
     obs: String,
   },
-  { timestamps: true }
+  { _id: true, timestamps: true }
 );
 
 module.exports = model("BoilerType", boilerTypeSchemaMongoose);

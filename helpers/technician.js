@@ -2,7 +2,7 @@ const Joi = require("joi");
 Joi.objectId = require("joi-objectid")(Joi);
 
 const technicianSchema = Joi.object({
-  service: Joi.array().items(Joi.objectId()),
+  services: Joi.array().items(Joi.objectId()),
 
   fullname: Joi.string().required(),
 

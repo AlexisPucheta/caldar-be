@@ -2,7 +2,7 @@ const Joi = require("joi");
 Joi.objectId = require("joi-objectid")(Joi);
 
 const boilerTypeSchema = Joi.object({
-  boilerType: Joi.string().uppercase().required(),
+  boilerType: Joi.string().uppercase().length(1).required(),
 
   stdMaintainance: Joi.number().required(),
 
