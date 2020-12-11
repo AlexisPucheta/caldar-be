@@ -7,9 +7,8 @@ const technicianSchema = require("../helpers/technician.js");
 exports.createTechnician = async (req, res) => {
   try {
     await technicianSchema.validateAsync(req.body);
-
-    const technician = new Technician({
-      service: req.body.service,
+    const newTechnician = new Technician({
+      services: req.body.services,
       fullname: req.body.fullname,
       email: req.body.email,
       phone: req.body.phone,
@@ -19,47 +18,68 @@ exports.createTechnician = async (req, res) => {
       obs: req.body.obs,
     });
 
-    if (technician.service.length !== 0) {
-      const doesExist = await Service.findById(technician.service);
-      if (doesExist === null) {
-        return res.status(500).send({
-          msg: `Doesn't exist this service ID: ${technician.service}`,
-        });
-      }
-    }
-
-    if (technician.knowledge !== undefined) {
-      const boilerType = await BoilerType.find({
-        boilerType: technician.knowledge,
+    const technician = await Technician.findOne({
+      fullname: newTechnician.fullname,
+    });
+    if (technician !== null) {
+      return res.status(400).send({
+        msg: `This technician full name: ${newTechnician.fullname} already exist.`,
       });
-      if (boilerType.length !== technician.knowledge.length) {
-        return res.status(500).send({
-          msg: `Doesn't exist some of this boiler-type: ${technician.knowledge}`,
+    }
+
+    if (newTechnician.services !== undefined) {
+      const services = await Service.find({ _id: newTechnician.services });
+      if (services.length === newTechnician.services.length) {
+        services.forEach((service) => {
+          if (service.technician !== undefined) {
+            return res.status(400).send({
+              msg: `This service ID: ${service.id} already assigned to technician ${service.technician}.`,
+            });
+          }
+          return false;
         });
+        await Service.updateMany(
+          { _id: newTechnician.services },
+          {
+            technician: newTechnician.id,
+          }
+        );
+      } else {
+        return res
+          .status(404)
+          .send({ msg: "Some of the services doesn't exist." });
       }
     }
 
-    await Service.updateMany(
-      { _id: technician.service },
-      {
-        technician: technician.id,
-      },
-      { useFindAndModify: false }
-    );
+    if (newTechnician.knowledge !== undefined) {
+      const boilerType = await BoilerType.find({
+        boilerType: newTechnician.knowledge,
+      });
+      if (boilerType.length !== newTechnician.knowledge.length) {
+        return res
+          .status(404)
+          .send({ msg: "Some of the boiler types doesn't exist." });
+      }
+    }
 
     await BoilerType.updateMany(
-      { boilerType: req.body.knowledge },
+      { boilerType: newTechnician.knowledge },
       {
         $addToSet: {
-          technician: technician.id,
+          technician: newTechnician.id,
         },
-      },
-      { useFindAndModify: false }
+      }
     );
-    technician.save();
-    return res.send(technician);
-  } catch (error) {
-    return res.send({ msg: `${error.message}` });
+
+    newTechnician.save(newTechnician);
+    return res.send({
+      newTechnician,
+      msg: "New technician was successfully created.",
+    });
+  } catch (err) {
+    return res.status(500).send({
+      msg: err.message || "Some error ocurred while creating new technician.",
+    });
   }
 };
 
@@ -121,10 +141,16 @@ exports.getTechnicianById = (req, res) => {
 // Update technician by id in the database.
 exports.updateTechnicianById = async (req, res) => {
   try {
+    const technician = await Technician.findById(req.params.id);
+    if (technician === null) {
+      return res
+        .status(404)
+        .send({ msg: `Technician with ID: ${req.params.id} was not found.` });
+    }
+
     await technicianSchema.validateAsync(req.body);
-    const doc = await Technician.findById(req.params.id);
-    const technician = {
-      service: req.body.service,
+    const updatedTechnician = {
+      services: req.body.services,
       fullname: req.body.fullname,
       email: req.body.email,
       phone: req.body.phone,
@@ -134,64 +160,64 @@ exports.updateTechnicianById = async (req, res) => {
       obs: req.body.obs,
     };
 
-    if (technician.service !== undefined) {
-      const doesExist = await Service.findById(technician.service);
-      if (doesExist === null) {
-        return res.status(500).send({
-          msg: `Doesn't exist this service ID: ${technician.service}`,
+    if (updatedTechnician.services !== undefined) {
+      const services = await Service.find({ _id: updatedTechnician.services });
+      if (services.length === updatedTechnician.services.length) {
+        services.forEach((service) => {
+          if (
+            service.technician !== undefined &&
+            service.technician !== req.query.id
+          ) {
+            return res.status(400).send({
+              msg: `This service ID: ${service.id} already assigned to technician ${service.technician}.`,
+            });
+          }
+          return false;
         });
+        await Service.updateMany(
+          { _id: updatedTechnician.services },
+          {
+            technician: updatedTechnician.id,
+          }
+        );
+        await Service.updateMany(
+          { _id: technician.services },
+          {
+            technician: null,
+          }
+        );
+      } else {
+        return res
+          .status(404)
+          .send({ msg: "Some of the services doesn't exist." });
       }
     }
 
-    if (technician.knowledge !== undefined) {
+    if (
+      updatedTechnician.knowledge !== undefined &&
+      updatedTechnician.knowledge.length > technician.knowledge.length
+    ) {
       const boilerType = await BoilerType.find({
-        boilerType: technician.knowledge,
+        boilerType: updatedTechnician.knowledge,
       });
-      if (boilerType.length !== technician.knowledge.length) {
-        return res.status(500).send({
-          msg: `Doesn't exist some of this boiler-type: ${technician.knowledge}`,
-        });
+      if (boilerType.length !== updatedTechnician.knowledge.length) {
+        return res
+          .status(404)
+          .send({ msg: "Some of the boiler types doesn't exist." });
       }
     }
 
-    await Technician.findByIdAndUpdate(req.params.id, technician, {
+    await Technician.findByIdAndUpdate(req.params.id, updatedTechnician, {
       useFindAndModify: false,
     });
 
-    await Service.updateMany(
-      { technician: req.params.id },
-      {
-        technician: null,
-      },
-      { useFindAndModify: false }
-    );
-
-    await Service.updateMany(
-      { _id: technician.service },
-      {
-        technician: doc.id,
-      },
-      { useFindAndModify: false }
-    );
-
     await BoilerType.updateMany(
-      { technician: req.params.id },
-      {
-        $pull: {
-          technician: req.params.id,
-        },
-      },
-      { useFindAndModify: false }
-    );
-
-    await BoilerType.updateMany(
-      { boilerType: req.body.knowledge },
+      { boilerType: updatedTechnician.knowledge },
       {
         $addToSet: {
-          technician: req.params.id,
+          technician: updatedTechnician.id,
         },
-      },
-      { useFindAndModify: false }
+      }
     );
 
     return res.send(technician);
@@ -206,34 +232,39 @@ exports.deleteTechnicianById = async (req, res) => {
     const technician = await Technician.findById(req.params.id);
     if (technician === null) {
       return res
-        .status(500)
-        .send({ msg: `This technician ID: ${req.params.id} doesnt exist` });
+        .status(404)
+        .send({ msg: `Technician with ID: ${req.params.id} was not found.` });
     }
 
-    await Service.updateMany(
-      { technician: technician.id },
-      {
-        technician: null,
-      },
-      { useFindAndModify: false }
-    );
+    if (technician.services !== undefined) {
+      await Service.updateMany(
+        { technician: technician.id },
+        {
+          technician: null,
+        }
+      );
+    }
+
+    if (technician.knowledge !== undefined) {
+      await BoilerType.updateMany(
+        { technician: technician.id },
+        {
+          $pull: {
+            technician: technician.id,
+          },
+        }
+      );
+    }
 
     await Technician.deleteOne({ _id: req.params.id });
 
-    await BoilerType.updateMany(
-      { technician: req.params.id },
-      {
-        $pull: {
-          technician: req.params.id,
-        },
-      },
-      { useFindAndModify: false }
-    );
-
     return res.send({
-      msg: `Boiler with id: ${req.params.id} was deleted successfully`,
+      technician,
+      msg: `Technician with id: ${req.params.id} was deleted successfully`,
     });
   } catch (err) {
-    return res.send({ msg: err.message || "Error undefined" });
+    return res.status(500).send({
+      msg: err.message || "Some error ocurred while deleting technician by ID.",
+    });
   }
 };

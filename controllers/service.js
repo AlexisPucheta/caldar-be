@@ -7,7 +7,6 @@ const serviceSchema = require("../helpers/service.js");
 exports.createService = async (req, res) => {
   try {
     await serviceSchema.validateAsync(req.body);
-
     const newService = new Service({
       boiler: req.body.boiler,
       technician: req.body.technician,
@@ -113,7 +112,6 @@ exports.getServiceById = (req, res) => {
 exports.updateServiceById = async (req, res) => {
   try {
     let service = await Service.findById(req.params.id);
-
     if (service === null) {
       return res
         .status(404)
@@ -121,7 +119,6 @@ exports.updateServiceById = async (req, res) => {
     }
 
     await serviceSchema.validateAsync(req.body);
-
     const updatedService = {
       boiler: req.body.boiler,
       technician: req.body.technician,
@@ -191,12 +188,12 @@ exports.deleteServiceById = async (req, res) => {
     const service = await Service.findById(req.params.id);
     if (service === null) {
       return res
-        .status(500)
+        .status(404)
         .send({ msg: `This service ID: ${req.params.id} doesnt exist` });
     }
 
-    await Technician.findOneAndUpdate(
-      { _id: service.technician },
+    await Boiler.findOneAndUpdate(
+      { _id: service.boiler },
       {
         $pull: {
           services: req.params.id,
@@ -205,12 +202,27 @@ exports.deleteServiceById = async (req, res) => {
       { useFindAndModify: false }
     );
 
+    if (service.technician !== undefined) {
+      await Technician.findOneAndUpdate(
+        { _id: service.technician },
+        {
+          $pull: {
+            services: req.params.id,
+          },
+        },
+        { useFindAndModify: false }
+      );
+    }
+
     await Service.deleteOne({ _id: req.params.id });
 
     return res.send({
-      msg: `Service with id: ${req.params.id} was deleted successfully`,
+      service,
+      msg: `Service with id: ${req.params.id} was successfully deleted.`,
     });
   } catch (err) {
-    return res.send({ msg: err.message || "Error undefined" });
+    return res.status(500).send({
+      msg: err.message || "Some error ocurred while deleting service by ID.",
+    });
   }
 };

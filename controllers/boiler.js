@@ -8,7 +8,7 @@ const Service = require("../models/service.js");
 exports.createBoiler = async (req, res) => {
   try {
     await boilerSchema.validateAsync(req.body);
-    const boiler = new Boiler({
+    const newBoiler = new Boiler({
       building: req.body.building,
       type: req.body.type,
       serialNumber: req.body.serialNumber,
@@ -17,45 +17,48 @@ exports.createBoiler = async (req, res) => {
       status: req.body.status,
     });
 
-    let doesExist;
-    doesExist = await BoilerType.find({ boilerType: boiler.type });
-
-    if (doesExist === null) {
-      res
-        .status(500)
-        .send({ msg: `This type of boiler ${boiler.type} doesnt exist` });
-    }
-
-    if (boiler.building !== undefined) {
-      doesExist = await Building.findById(boiler.building);
-      if (doesExist === null) {
-        return res
-          .status(500)
-          .send({ msg: `Doesn't exist this building ID: ${boiler.building}` });
-      }
-    }
-
-    doesExist = await Boiler.findOne({ serialNumber: boiler.serialNumber });
-    if (doesExist !== null) {
-      return res.status(500).send({
-        msg: `This serialNumber: ${boiler.serialNumber} is already in use`,
+    const boilerType = await BoilerType.find({ boilerType: newBoiler.type });
+    if (boilerType === null) {
+      return res.status(404).send({
+        msg: `Doesn't exist this boiler type ID: ${newBoiler.type}.`,
       });
     }
 
-    await Building.findOneAndUpdate(
-      { _id: boiler.building },
-      {
-        $push: {
-          boilers: boiler.id,
-        },
-      },
-      { useFindAndModify: false }
-    );
+    if (newBoiler.building !== undefined) {
+      const building = await Building.findById(newBoiler.building);
+      if (building === null) {
+        return res.status(500).send({
+          msg: `Doesn't exist this building ID: ${newBoiler.building}.`,
+        });
+      }
+      await Building.updateOne(
+        { _id: newBoiler.building },
+        {
+          $push: {
+            boilers: newBoiler.id,
+          },
+        }
+      );
+    }
 
-    boiler.save(boiler);
-    return res.send(boiler);
-  } catch (error) {
-    return res.send({ msg: `${error.message}` });
+    const boiler = await Boiler.findOne({
+      serialNumber: newBoiler.serialNumber,
+    });
+    if (boiler !== null) {
+      return res.status(400).send({
+        msg: `This boiler seril number: ${newBoiler.serialNumber} already exist.`,
+      });
+    }
+
+    newBoiler.save(newBoiler);
+    return res.send({
+      newBoiler,
+      msg: "New boiler was successfully created.",
+    });
+  } catch (err) {
+    return res.status(500).send({
+      msg: err.message || "Some error ocurred while creating new boiler.",
+    });
   }
 };
 
@@ -114,41 +117,47 @@ exports.getBoilerById = (req, res) => {
 // Update boiler by id in the database.
 exports.updateBoilerById = async (req, res) => {
   try {
+    let boiler = await Boiler.findById(req.params.id);
+    if (boiler === null) {
+      return res
+        .status(404)
+        .send({ msg: `Boiler with ID: ${req.params.id} was not found.` });
+    }
+
     await boilerSchema.validateAsync(req.body);
-    let doc = await Boiler.findById(req.params.id);
-    const boiler = {
+    const updatedBoiler = {
       building: req.body.building,
       type: req.body.type,
-      serialNumber: doc.serialNumber, // cant change this value
+      serialNumber: boiler.serialNumber, // cant change this value
       manufacturingDate: req.body.manufacturingDate,
       installationDate: req.body.installationDate,
       status: req.body.status,
     };
 
-    let doesExist;
-    doesExist = await BoilerType.find({ boilerType: boiler.type });
-
-    if (doesExist === null) {
-      res
-        .status(500)
-        .send({ msg: `This type of boiler ${boiler.type} doesnt exist` });
+    const boilerType = await BoilerType.find({
+      boilerType: updatedBoiler.type,
+    });
+    if (boilerType === null) {
+      return res.status(404).send({
+        msg: `Doesn't exist this boiler type ID: ${updatedBoiler.type}.`,
+      });
     }
 
-    if (req.body.building !== undefined) {
-      doesExist = await Building.findById(req.body.building);
-      if (doesExist === null) {
-        return res.status(500).send({
-          msg: `Doesn't exist this building ID: ${req.body.building}`,
+    if (updatedBoiler.building !== undefined) {
+      const building = await Building.findById(updatedBoiler.building);
+      if (building === null) {
+        return res.status(404).send({
+          msg: `Doesn't exist this building ID: ${updatedBoiler.building}.`,
         });
       }
     }
 
-    await Boiler.findByIdAndUpdate(req.params.id, boiler, {
+    await Boiler.findByIdAndUpdate(req.params.id, updatedBoiler, {
       useFindAndModify: false,
     });
 
     await Building.findOneAndUpdate(
-      { _id: boiler.building },
+      { _id: updatedBoiler.building },
       {
         $push: {
           boilers: req.params.id,
@@ -158,7 +167,7 @@ exports.updateBoilerById = async (req, res) => {
     );
 
     await Building.findOneAndUpdate(
-      { _id: doc.building },
+      { _id: boiler.building },
       {
         $pull: {
           boilers: req.params.id,
@@ -167,10 +176,16 @@ exports.updateBoilerById = async (req, res) => {
       { useFindAndModify: false }
     );
 
-    doc = await Boiler.findById(req.params.id);
-    return res.send(doc);
+    boiler = await Boiler.findById(req.params.id);
+
+    return res.send({
+      boiler,
+      msg: "Boiler was successfully updated.",
+    });
   } catch (err) {
-    return res.send({ msg: `${err}` });
+    return res.status(500).send({
+      msg: err.message || "Some error ocurred while updating boiler by ID.",
+    });
   }
 };
 
@@ -178,7 +193,13 @@ exports.updateBoilerById = async (req, res) => {
 exports.deleteBoilerById = async (req, res) => {
   try {
     const boiler = await Boiler.findById(req.params.id);
-    if (boiler !== null) {
+    if (boiler === null) {
+      return res
+        .status(404)
+        .send({ msg: `Boiler with ID: ${req.params.id} was not found.` });
+    }
+
+    if (boiler.building !== undefined) {
       await Building.findOneAndUpdate(
         { _id: boiler.building },
         {
@@ -188,18 +209,19 @@ exports.deleteBoilerById = async (req, res) => {
         },
         { useFindAndModify: false }
       );
-      await Boiler.deleteOne({ _id: req.params.id });
-
-      await Service.deleteMany({ boiler: req.params.id });
-
-      return res.send({
-        msg: `Boiler with id: ${req.params.id} was deleted successfully`,
-      });
     }
-    return res
-      .status(500)
-      .send({ msg: `This boiler ID: ${req.params.id} doesnt exist` });
+
+    await Service.deleteMany({ boiler: req.params.id });
+
+    await Boiler.deleteOne({ _id: req.params.id });
+
+    return res.send({
+      boiler,
+      msg: `Boiler with ID: ${req.params.id} was successfully deleted.`,
+    });
   } catch (err) {
-    return res.send({ msg: err.message || "Error undefined" });
+    return res.status(500).send({
+      msg: err.message || "Some error ocurred while deleting boiler by ID.",
+    });
   }
 };

@@ -7,7 +7,6 @@ const buildingSchema = require("../helpers/building.js");
 exports.createBuilding = async (req, res) => {
   try {
     await buildingSchema.validateAsync(req.body);
-
     const newBuilding = new Building({
       company: req.body.company,
       name: req.body.name,
@@ -19,6 +18,13 @@ exports.createBuilding = async (req, res) => {
       obs: req.body.obs,
       boilers: req.body.boilers,
     });
+
+    const building = await Building.findOne({ name: newBuilding.name });
+    if (building !== null) {
+      return res.status(400).send({
+        msg: `This building name: ${newBuilding.name} already exist.`,
+      });
+    }
 
     if (newBuilding.company !== undefined) {
       const company = await Company.findById(newBuilding.company);
@@ -42,7 +48,7 @@ exports.createBuilding = async (req, res) => {
       if (boilers.length === newBuilding.boilers.length) {
         boilers.forEach((boiler) => {
           if (boiler.building !== undefined) {
-            return res.status(500).send({
+            return res.status(400).send({
               msg: `This boiler id ${boiler.id} already belongs to a building ${boiler.building}.`,
             });
           }
@@ -130,7 +136,6 @@ exports.getBuildingById = (req, res) => {
 exports.updateBuildingById = async (req, res) => {
   try {
     let building = await Building.findById(req.params.id);
-
     if (building === null) {
       return res
         .status(404)
@@ -138,7 +143,6 @@ exports.updateBuildingById = async (req, res) => {
     }
 
     await buildingSchema.validateAsync(req.body);
-
     const updatedBuilding = {
       company: req.body.company,
       name: req.body.name,
@@ -164,7 +168,7 @@ exports.updateBuildingById = async (req, res) => {
       const boilers = await Boiler.find({ _id: updatedBuilding.boilers });
       if (boilers.length !== updatedBuilding.boilers.length) {
         return res
-          .status(404)
+          .status(400)
           .send({ msg: "Some of the boilers doesn't exist." });
       }
     }
@@ -206,34 +210,34 @@ exports.updateBuildingById = async (req, res) => {
 exports.deleteBuildingById = async (req, res) => {
   try {
     const building = await Building.findById(req.params.id);
-
-    if (building !== null) {
-      if (building.company !== undefined) {
-        await Company.findOneAndUpdate(
-          { _id: building.company },
-          {
-            $pull: {
-              buildings: req.params.id,
-            },
-          },
-          { useFindAndModify: false }
-        );
-      }
-
-      if (building.boilers !== undefined) {
-        await Boiler.deleteMany({ building: req.params.id });
-      }
-
-      await Building.deleteOne({ _id: req.params.id });
-
-      return res.send({
-        building,
-        msg: `Building with ID: ${req.params.id} was successfully deleted.`,
-      });
+    if (building === null) {
+      return res
+        .status(404)
+        .send({ msg: `Building with ID: ${req.params.id} was not found.` });
     }
-    return res
-      .status(404)
-      .send({ msg: `Building with ID: ${req.params.id} was not found.` });
+
+    if (building.company !== undefined) {
+      await Company.findOneAndUpdate(
+        { _id: building.company },
+        {
+          $pull: {
+            buildings: req.params.id,
+          },
+        },
+        { useFindAndModify: false }
+      );
+    }
+
+    if (building.boilers !== undefined) {
+      await Boiler.deleteMany({ building: req.params.id });
+    }
+
+    await Building.deleteOne({ _id: req.params.id });
+
+    return res.send({
+      building,
+      msg: `Building with ID: ${req.params.id} was successfully deleted.`,
+    });
   } catch (err) {
     return res.status(500).send({
       msg: err.message || "Some error ocurred while deleting building by ID.",
