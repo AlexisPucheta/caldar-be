@@ -120,14 +120,14 @@ exports.getBuildingById = (req, res) => {
       if (!data) {
         return res
           .status(404)
-          .send({ msg: `Doesn't exist building with id: ${req.params.id}.` });
+          .send({ msg: `Doesn't exist building with ID: ${req.params.id}.` });
       }
       return res.send(data);
     })
     .catch((err) => {
       return res.status(500).send({
         msg:
-          err.message || "Some error ocurred while retrieving building by id.",
+          err.message || "Some error ocurred while retrieving building by ID.",
       });
     });
 };

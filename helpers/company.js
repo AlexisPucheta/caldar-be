@@ -2,11 +2,13 @@ const Joi = require("joi");
 Joi.objectId = require("joi-objectid")(Joi);
 
 const companySchema = Joi.object({
-  CIN: Joi.number().required(),
+  buildings: Joi.array().items(Joi.objectId()),
 
   name: Joi.string().required(),
 
   address: Joi.string().required(),
+
+  CIN: Joi.number().required(),
 
   zipcode: Joi.string().required(),
 
@@ -15,8 +17,6 @@ const companySchema = Joi.object({
   email: Joi.string().required(),
 
   phone: Joi.number().required(),
-
-  buildings: Joi.array().items(Joi.objectId()),
 });
 
 module.exports = companySchema;
