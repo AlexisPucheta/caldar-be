@@ -240,7 +240,9 @@ exports.deleteTechnicianById = async (req, res) => {
       await Service.updateMany(
         { technician: technician.id },
         {
-          technician: null,
+          $unset: {
+            technician: "",
+          },
         }
       );
     }

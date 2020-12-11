@@ -189,8 +189,8 @@ exports.deleteCompanyById = async (req, res) => {
       await Building.findOneAndUpdate(
         { _id: company.building },
         {
-          $pull: {
-            company: req.params.id,
+          $unset: {
+            company: "",
           },
         },
         { useFindAndModify: false }
