@@ -2,7 +2,7 @@ const Joi = require("joi");
 Joi.objectId = require("joi-objectid")(Joi);
 
 const companySchema = Joi.object({
-  cin: Joi.number().required(),
+  CIN: Joi.number().required(),
 
   name: Joi.string().required(),
 
