@@ -192,16 +192,6 @@ exports.deleteServiceById = async (req, res) => {
         .send({ msg: `This service ID: ${req.params.id} doesnt exist` });
     }
 
-    await Boiler.findOneAndUpdate(
-      { _id: service.boiler },
-      {
-        $pull: {
-          services: req.params.id,
-        },
-      },
-      { useFindAndModify: false }
-    );
-
     if (service.technician !== undefined) {
       await Technician.findOneAndUpdate(
         { _id: service.technician },
