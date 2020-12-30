@@ -73,7 +73,7 @@ exports.getCompaniesAll = (req, res) => {
   if (JSON.stringify(req.query) === JSON.stringify({})) {
     Company.find({})
       .then((data) => {
-        return res.status(200).send(data);
+        return res.send(data);
       })
       .catch((err) => {
         return res.status(500).send({
@@ -85,7 +85,7 @@ exports.getCompaniesAll = (req, res) => {
     Company.find(req.query)
       .then((data) => {
         if (Object.keys(data).length !== 0) {
-          return res.status(200).send(data);
+          return res.send(data);
         }
         return res.status(404).send({
           msg: `Doesn't exist any company with ${key}: ${req.query[key]}.`,

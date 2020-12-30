@@ -16,7 +16,7 @@ const technicianSchemaMongoose = new Schema(
 
     address: String,
 
-    dateOfBirth: Date,
+    dateOfBirth: String,
 
     knowledge: {
       type: [String],

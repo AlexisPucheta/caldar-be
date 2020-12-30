@@ -220,9 +220,14 @@ exports.updateTechnicianById = async (req, res) => {
       }
     );
 
-    return res.send(technician);
-  } catch (error) {
-    return res.send({ msg: `${error.message}` });
+    return res.send({
+      technician,
+      msg: "Technician was successfully updated.",
+    });
+  } catch (err) {
+    return res.status(500).send({
+      msg: err.message || "Some error ocurred while updating technician by ID.",
+    });
   }
 };
 

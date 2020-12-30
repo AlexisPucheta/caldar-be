@@ -12,7 +12,7 @@ const technicianSchema = Joi.object({
 
   address: Joi.string().required(),
 
-  dateOfBirth: Joi.date().less("now").required(),
+  dateOfBirth: Joi.string().required(),
 
   knowledge: Joi.array().items(Joi.string().uppercase()),
 
