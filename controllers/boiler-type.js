@@ -1,28 +1,57 @@
-const BoilerType = require("../models/boiler-type");
+const BoilerType = require("../models/boiler-type.js");
+const Technician = require("../models/technician.js");
+const boilerTypeSchema = require("../helpers/boiler-type.js");
 
-// Create a boiler type. At least desc is required
-exports.createBoilerType = (req, res) => {
-  const boilerType = new BoilerType({
-    desc: req.body.desc,
-  });
-  if (boilerType.desc !== undefined) {
-    boilerType
-      .save(boilerType)
-      .then((data) => {
-        return res.send({
-          data,
-          msg: "Boiler type was succesfully created",
-        });
-      })
-      .catch((err) => {
-        return res.send.status(500).send({
-          msg:
-            err.message ||
-            "Something error ocurred while creating a new Boiler type!",
-        });
+// Create a boiler type in the database.
+exports.createBoilerType = async (req, res) => {
+  try {
+    await boilerTypeSchema.validateAsync(req.body);
+    const newBoilerType = new BoilerType({
+      boilerType: req.body.boilerType,
+      stdMaintainance: req.body.stdMaintainance,
+      technician: req.body.technician,
+      obs: req.body.obs,
+    });
+
+    const boilerType = await BoilerType.findOne({
+      boilerType: newBoilerType.boilerType,
+    });
+    if (boilerType !== null) {
+      return res.status(400).send({
+        msg: `This boiler type: ${newBoilerType.boilerType} already exist.`,
       });
+    }
+
+    if (newBoilerType.technician.length !== 0) {
+      const technicians = await Technician.find({
+        _id: newBoilerType.technician,
+      });
+      if (technicians.length !== newBoilerType.technician.length) {
+        return res
+          .status(404)
+          .send({ msg: "Some of the technicians doesn't exist." });
+      }
+
+      await Technician.updateMany(
+        { _id: newBoilerType.technician },
+        {
+          $push: {
+            knowledge: newBoilerType.boilerType,
+          },
+        }
+      );
+    }
+
+    newBoilerType.save(newBoilerType);
+    return res.send({
+      newBoilerType,
+      msg: "New boiler type was successfully created.",
+    });
+  } catch (err) {
+    return res.status(500).send({
+      msg: err.message || "Some error ocurred while creating new boiler type.",
+    });
   }
-  return res.status(400).send({ msg: "Desc cannot be empty" });
 };
 
 // Retrieve all boiler types or boiler type by its attributes from the database.
@@ -81,54 +110,101 @@ exports.getBoilerTypeById = (req, res) => {
 };
 
 // Update boiler type by id. All register are needed.
-exports.putBoilerType = (req, res) => {
-  if (!req.body) {
-    return res.status(400).send({
-      message: "Data to update cannot be empty",
-    });
-  }
-  if (!req.body.desc) {
-    return res.status(400).send({ msg: "Content cannot be empty" });
-  }
-  BoilerType.findOneAndUpdate({ _id: req.params.id }, req.body, {
-    useFindAndModify: false,
-  })
-    .then((data) => {
-      if (!data) {
-        return res.status(404).send({
-          msg: `Boiler type with id=${req.params.id} was not found`,
-        });
+exports.updateBoilerTypeById = async (req, res) => {
+  try {
+    let boilerType = await BoilerType.findById(req.params.id);
+    if (boilerType === null) {
+      return res
+        .status(404)
+        .send({ msg: `Boiler type with ID: ${req.params.id} was not found.` });
+    }
+
+    await boilerTypeSchema.validateAsync(req.body);
+    const updatedBoilerType = {
+      boilerType: boilerType.boilerType,
+      stdMaintainance: req.body.stdMaintainance,
+      technician: req.body.technician,
+      obs: req.body.obs,
+    };
+
+    if (updatedBoilerType.technician !== undefined) {
+      const technicians = await Technician.find({
+        _id: updatedBoilerType.technician,
+      });
+      if (technicians.length !== updatedBoilerType.technician.length) {
+        return res
+          .status(400)
+          .send({ msg: "Some of the technicians doesn't exist." });
       }
-      return res.send({
-        data,
-        msg: `Boiler type with id=${req.params.id} was update successfully`,
-      });
-    })
-    .catch((err) => {
-      return res.status(500).send({
-        msg:
-          err.message || "Some error ocurred while updating boiler type by id.",
-      });
+    }
+
+    await BoilerType.findByIdAndUpdate(req.params.id, updatedBoilerType, {
+      useFindAndModify: false,
     });
-  return false;
+
+    await Technician.updateMany(
+      { _id: boilerType.technician },
+      {
+        $pull: {
+          knowledge: boilerType.boilerType,
+        },
+      }
+    );
+
+    await Technician.updateMany(
+      { _id: updatedBoilerType.technician },
+      {
+        $push: {
+          knowledge: updatedBoilerType.boilerType,
+        },
+      }
+    );
+
+    boilerType = await BoilerType.findById(req.params.id);
+
+    return res.send({
+      boilerType,
+      msg: "Boiler type was successfully updated.",
+    });
+  } catch (err) {
+    return res.status(500).send({
+      msg:
+        err.message || "Some error ocurred while updating boiler type by ID.",
+    });
+  }
 };
 
 // Delete boiler type by id from the database
-exports.deleteBoilerTypeById = (req, res) => {
-  BoilerType.findOneAndDelete(
-    { _id: req.params.id },
-    { useFindAndModify: false }
-  )
-    .then((data) => {
-      return res.send({
-        data,
-        msg: `Boiler type with id: ${req.params.id} was succesfully deleted.`,
-      });
-    })
-    .catch((err) => {
-      return res.status(500).send({
-        msg:
-          err.message || "Some error ocurred while removing boiler type by id.",
-      });
+exports.deleteBoilerTypeById = async (req, res) => {
+  try {
+    const boilerType = await BoilerType.findById(req.params.id);
+    if (boilerType === null) {
+      return res
+        .status(404)
+        .send({ msg: `Boiler type with ID: ${req.params.id} was not found.` });
+    }
+
+    if (boilerType.technician !== undefined) {
+      await Technician.updateMany(
+        { _id: boilerType.technician },
+        {
+          $pull: {
+            knowledge: req.params.id,
+          },
+        }
+      );
+    }
+
+    await BoilerType.deleteOne({ _id: req.params.id });
+
+    return res.send({
+      boilerType,
+      msg: `Boiler type with ID: ${req.params.id} was successfully deleted.`,
     });
+  } catch (err) {
+    return res.status(500).send({
+      msg:
+        err.message || "Some error ocurred while deleting boiler type by ID.",
+    });
+  }
 };

@@ -1,37 +1,79 @@
-const Company = require("../models/company");
+const Company = require("../models/company.js");
+const Building = require("../models/building.js");
+const companySchema = require("../helpers/company.js");
 
-// company-controller.create
-exports.createCompany = (req, res) => {
-  // Validate request
-  if (!req.body.name || !req.body.buildings) {
-    res.status(400).send({ message: "There is no data to create" });
-    return;
-  }
-  // Create company
-  const company = new Company({
-    name: req.body.name,
-    buildings: req.body.buildings,
-  });
-  // Save company
-  company
-    .save(company)
-    .then((data) => {
-      res.send(data);
-    })
-    .catch((err) => {
-      res.status(500).send({
-        message: err.message || "There is an error creating a new company",
-      });
+// Create company in the database.
+exports.createCompany = async (req, res) => {
+  try {
+    await companySchema.validateAsync(req.body);
+    const newCompany = new Company({
+      buildings: req.body.buildings,
+      name: req.body.name,
+      address: req.body.adress,
+      CIN: req.body.CIN,
+      zipcode: req.body.zipcode,
+      contact: req.body.contact,
+      email: req.body.email,
+      phone: req.body.phone,
     });
+
+    let company = await Company.findOne({ name: newCompany.name });
+    if (company !== null) {
+      return res.status(400).send({
+        msg: `This company name: ${newCompany.name} already exist.`,
+      });
+    }
+
+    company = await Company.findOne({ CIN: newCompany.CIN });
+    if (company !== null) {
+      return res.status(400).send({
+        msg: `This CIN: ${newCompany.CIN} already exist.`,
+      });
+    }
+
+    if (newCompany.buildings !== undefined) {
+      const buildings = await Building.find({ _id: newCompany.buildings });
+      if (buildings.length === newCompany.buildings.length) {
+        buildings.forEach((building) => {
+          if (building.company !== undefined) {
+            return res.status(400).send({
+              msg: `This building ID ${building.id} already belongs to a company ${building.company}.`,
+            });
+          }
+          return false;
+        });
+        await Building.updateMany(
+          { _id: newCompany.buildings },
+          {
+            company: newCompany.id,
+          }
+        );
+      } else {
+        return res
+          .status(404)
+          .send({ msg: "Some of the buildings doesn't exist." });
+      }
+    }
+
+    newCompany.save(newCompany);
+    return res.send({
+      newCompany,
+      msg: "New company was successfully created.",
+    });
+  } catch (err) {
+    return res.status(500).send({
+      msg: err.message || "Some error ocurred while creating new company.",
+    });
+  }
 };
 
-// company-controller.getAllCompanies or getCompaniesByAttribute
+// Retrieve all companies or get company by its attributes from the database.
 exports.getCompaniesAll = (req, res) => {
   const key = Object.keys(req.query);
   if (JSON.stringify(req.query) === JSON.stringify({})) {
     Company.find({})
       .then((data) => {
-        return res.status(200).send(data);
+        return res.send(data);
       })
       .catch((err) => {
         return res.status(500).send({
@@ -43,7 +85,7 @@ exports.getCompaniesAll = (req, res) => {
     Company.find(req.query)
       .then((data) => {
         if (Object.keys(data).length !== 0) {
-          return res.status(200).send(data);
+          return res.send(data);
         }
         return res.status(404).send({
           msg: `Doesn't exist any company with ${key}: ${req.query[key]}.`,
@@ -59,66 +101,111 @@ exports.getCompaniesAll = (req, res) => {
   }
 };
 
-// company-controller.getCompanyById
+// Retrieve company by id from the database.
 exports.getCompanyById = (req, res) => {
   Company.findById({ _id: req.params.id })
     .then((data) => {
       if (!data) {
-        return res.status(404).send({
-          message: `Company with id ${req.params.id} was not found`,
-        });
+        return res
+          .status(404)
+          .send({ msg: `Doesn't exist company with ID: ${req.params.id}.` });
       }
       return res.send(data);
     })
     .catch((err) => {
       res.status(500).send({
-        message: err.message || "Some error ocurred while requesting data",
+        msg:
+          err.message || "Some error ocurred while retrieving company by ID.",
       });
     });
 };
 
-// company-controller.updateCompanyById
-exports.updateCompanyById = (req, res) => {
-  if (!req.body) {
-    return res.status(400).send({ msg: `Data to update cannot be empty` });
-  }
-  if (!req.body.name || !req.body.buildings) {
-    return res.status(400).send({ msg: `Content cannot be empty` });
-  }
-
-  Company.findByIdAndUpdate({ _id: req.params.id }, req.body, {
-    useFindAndModify: false,
-  })
-    .then((data) => {
-      if (!data) {
-        return res
-          .status(404)
-          .send({ msg: `Company with id ${req.params.id}was not found` });
-      }
+// Update company by id in the database.
+exports.updateCompanyById = async (req, res) => {
+  try {
+    let company = await Company.findById(req.params.id);
+    if (company === null) {
       return res
-        .status(200)
-        .send({ msg: `Company with id ${req.params.id}was updated` });
-    })
-    .catch((err) => {
-      return res.status(500).send({
-        msg: err.message || "Some error ocurred while updating company by id",
-      });
+        .status(404)
+        .send({ msg: `Company with ID: ${req.params.id} was not found.` });
+    }
+
+    await companySchema.validateAsync(req.body);
+    const updatedCompany = {
+      buildings: req.body.buildings,
+      name: req.body.name,
+      address: req.body.adress,
+      CIN: req.body.CIN,
+      zipcode: req.body.zipcode,
+      contact: req.body.contact,
+      email: req.body.email,
+      phone: req.body.phone,
+    };
+
+    if (updatedCompany.buildings !== undefined) {
+      const buildings = await Building.find({ _id: updatedCompany.buildings });
+      if (buildings.length !== updatedCompany.buildings.length) {
+        return res
+          .status(400)
+          .send({ msg: "Some of the buildings doesn't exist." });
+      }
+    }
+
+    await Company.findByIdAndUpdate(req.params.id, updatedCompany, {
+      useFindAndModify: false,
     });
-  return false;
+
+    await Building.updateMany(
+      { _id: updatedCompany.buildings },
+      {
+        company: req.params.id,
+      }
+    );
+
+    company = await Company.findById(req.params.id);
+
+    return res.send({
+      company,
+      msg: "Company was successfully updated.",
+    });
+  } catch (err) {
+    return res.status(500).send({
+      msg: err.message || "Some error ocurred while updating company by ID.",
+    });
+  }
 };
 
-// company-controller.deleteCompaniesById
-exports.deleteCompanyById = (req, res) => {
-  Company.findByIdAndRemove({ _id: req.params.id }, { useFindAndModify: false })
-    .then((data) => {
-      res.status(200).send({
-        data,
-        msg: `Company with id: ${req.params.id}was deleted.`,
-      });
-    })
-    .catch((err) => {
-      return res.status(500).send({
-        msg: err.message || "Some error curred while removing company by id",
-      });
+// Delete company by id from database
+exports.deleteCompanyById = async (req, res) => {
+  try {
+    const company = await Company.findById(req.params.id);
+    if (company === null) {
+      return res
+        .status(404)
+        .send({ msg: `Company with ID: ${req.params.id} was not found.` });
+    }
+
+    if (company.building !== undefined) {
+      await Building.findOneAndUpdate(
+        { _id: company.building },
+        {
+          $unset: {
+            company: "",
+          },
+        },
+        { useFindAndModify: false }
+      );
+    }
+
+    await Company.deleteOne({ _id: req.params.id });
+
+    return res.send({
+      company,
+      msg: `Company with ID: ${req.params.id} was successfully deleted`,
     });
+  } catch (err) {
+    return res.status(400).send({
+      msg: err.message || "Some error ocurred while deleting company by ID.",
+    });
+  }
 };

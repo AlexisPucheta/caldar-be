@@ -1,29 +1,82 @@
 const Building = require("../models/building.js");
+const Company = require("../models/company.js");
+const Boiler = require("../models/boiler.js");
+const buildingSchema = require("../helpers/building.js");
 
-// Create building in the database. At least name is required
-exports.createBuilding = (req, res) => {
-  const building = new Building({
-    name: req.body.name,
-    address: req.body.address,
-    boilers: req.body.boilers,
-    company: req.body.company,
-  });
-  if (building.name !== undefined) {
-    building
-      .save(building)
-      .then((data) => {
-        return res.send({
-          data,
-          msg: "Building was succesfully created.",
-        });
-      })
-      .catch((err) => {
-        return res.status(500).send({
-          msg: err.message || "Some error ocurred while creating new building.",
-        });
+// Create building in the database.
+exports.createBuilding = async (req, res) => {
+  try {
+    await buildingSchema.validateAsync(req.body);
+    const newBuilding = new Building({
+      company: req.body.company,
+      name: req.body.name,
+      address: req.body.address,
+      zipcode: req.body.zipcode,
+      contact: req.body.contact,
+      phone: req.body.phone,
+      email: req.body.email,
+      obs: req.body.obs,
+      boilers: req.body.boilers,
+    });
+
+    const building = await Building.findOne({ name: newBuilding.name });
+    if (building !== null) {
+      return res.status(400).send({
+        msg: `This building name: ${newBuilding.name} already exist.`,
       });
+    }
+
+    if (newBuilding.company !== undefined) {
+      const company = await Company.findById(newBuilding.company);
+      if (company === null) {
+        return res.status(404).send({
+          msg: `Doesn't exist this company ID: ${newBuilding.company}.`,
+        });
+      }
+      await Company.updateOne(
+        { _id: newBuilding.company },
+        {
+          $push: {
+            buildings: newBuilding.id,
+          },
+        }
+      );
+    }
+
+    if (newBuilding.boilers !== undefined) {
+      const boilers = await Boiler.find({ _id: newBuilding.boilers });
+      if (boilers.length === newBuilding.boilers.length) {
+        boilers.forEach((boiler) => {
+          if (boiler.building !== undefined) {
+            return res.status(400).send({
+              msg: `This boiler id ${boiler.id} already belongs to a building ${boiler.building}.`,
+            });
+          }
+          return false;
+        });
+        await Boiler.updateMany(
+          { _id: newBuilding.boilers },
+          {
+            building: newBuilding.id,
+          }
+        );
+      } else {
+        return res
+          .status(404)
+          .send({ msg: "Some of the boilers doesn't exist." });
+      }
+    }
+
+    newBuilding.save(newBuilding);
+    return res.send({
+      newBuilding,
+      msg: "New building was successfully created.",
+    });
+  } catch (err) {
+    return res.status(500).send({
+      msg: err.message || "Some error ocurred while creating new building.",
+    });
   }
-  return res.status(400).send({ msg: "Name cannot be empty!" });
 };
 
 // Retrieve all buildings or get building by its attributes from the database.
@@ -67,66 +120,127 @@ exports.getBuildingById = (req, res) => {
       if (!data) {
         return res
           .status(404)
-          .send({ msg: `Doesn't exist building with id: ${req.params.id}.` });
+          .send({ msg: `Doesn't exist building with ID: ${req.params.id}.` });
       }
       return res.send(data);
     })
     .catch((err) => {
       return res.status(500).send({
         msg:
-          err.message || "Some error ocurred while retrieving building by id.",
+          err.message || "Some error ocurred while retrieving building by ID.",
       });
     });
 };
 
 // Update building by id in the database.
-exports.updateBuildingById = (req, res) => {
-  if (!req.body) {
-    return res.status(400).send({ msg: "Data to update cannot be empty!" });
-  }
-  if (
-    !req.body.name ||
-    !req.body.address ||
-    !req.body.boilers ||
-    !req.body.company
-  ) {
-    return res.status(400).send({ msg: "Content cannot be empty!" });
-  }
+exports.updateBuildingById = async (req, res) => {
+  try {
+    let building = await Building.findById(req.params.id);
+    if (building === null) {
+      return res
+        .status(404)
+        .send({ msg: `Building with ID: ${req.params.id} was not found.` });
+    }
 
-  Building.findOneAndUpdate({ _id: req.params.id }, req.body, {
-    useFindAndModify: false,
-  })
-    .then((data) => {
-      if (!data) {
-        return res
-          .status(404)
-          .send({ msg: `Building with id: ${req.params.id} was not found.` });
+    await buildingSchema.validateAsync(req.body);
+    const updatedBuilding = {
+      company: req.body.company,
+      name: req.body.name,
+      address: req.body.address,
+      zipcode: req.body.zipcode,
+      contact: req.body.contact,
+      phone: req.body.phone,
+      email: req.body.email,
+      obs: req.body.obs,
+      boilers: req.body.boilers,
+    };
+
+    if (updatedBuilding.company !== undefined) {
+      const company = await Company.findById(updatedBuilding.company);
+      if (company === null) {
+        return res.status(404).send({
+          msg: `Doesn't exist this company ID: ${updatedBuilding.company}.`,
+        });
       }
-      return res.send({
-        data,
-        msg: `Building with id: ${req.params.id} was successfully updated.`,
-      });
-    })
-    .catch((err) => {
-      return res.status(500).send({
-        msg: err.message || "Some error ocurred while updating building by id.",
-      });
+    }
+
+    if (updatedBuilding.boilers !== undefined) {
+      const boilers = await Boiler.find({ _id: updatedBuilding.boilers });
+      if (boilers.length !== updatedBuilding.boilers.length) {
+        return res
+          .status(400)
+          .send({ msg: "Some of the boilers doesn't exist." });
+      }
+    }
+
+    await Building.findByIdAndUpdate(req.params.id, updatedBuilding, {
+      useFindAndModify: false,
     });
-  return false;
+
+    await Company.updateOne(
+      { _id: updatedBuilding.company },
+      {
+        $addToSet: {
+          building: req.params.id,
+        },
+      }
+    );
+
+    await Boiler.updateMany(
+      { _id: updatedBuilding.boilers },
+      {
+        building: req.params.id,
+      }
+    );
+
+    building = await Building.findById(req.params.id);
+
+    return res.send({
+      building,
+      msg: "Building was successfully updated.",
+    });
+  } catch (err) {
+    return res.status(500).send({
+      msg: err.message || "Some error ocurred while updating building by ID.",
+    });
+  }
 };
 
 // Delete building by id from the database.
-exports.deleteBuildingById = (req, res) => {
-  Building.findOneAndRemove({ _id: req.params.id }, { useFindAndModify: false })
-    .then((data) => {
-      res.send({
-        data,
-        msg: `Building with id: ${req.params.id} was succesfully deleted.`,
-      });
-    })
-    .catch((err) => {
-      return res.status(500).send({
-        msg: err.message || "Some error ocurred while removing building by id.",
-      });
+exports.deleteBuildingById = async (req, res) => {
+  try {
+    const building = await Building.findById(req.params.id);
+    if (building === null) {
+      return res
+        .status(404)
+        .send({ msg: `Building with ID: ${req.params.id} was not found.` });
+    }
+
+    if (building.company !== undefined) {
+      await Company.findOneAndUpdate(
+        { _id: building.company },
+        {
+          $pull: {
+            buildings: req.params.id,
+          },
+        },
+        { useFindAndModify: false }
+      );
+    }
+
+    if (building.boilers !== undefined) {
+      await Boiler.deleteMany({ building: req.params.id });
+    }
+
+    await Building.deleteOne({ _id: req.params.id });
+
+    return res.send({
+      building,
+      msg: `Building with ID: ${req.params.id} was successfully deleted.`,
     });
+  } catch (err) {
+    return res.status(500).send({
+      msg: err.message || "Some error ocurred while deleting building by ID.",
+    });
+  }
 };

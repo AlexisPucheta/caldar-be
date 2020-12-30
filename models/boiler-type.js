@@ -1,13 +1,20 @@
+const { ObjectId } = require("mongodb");
 const { model, Schema } = require("mongoose");
 
-const boilerTypeSchema = new Schema(
+const boilerTypeSchemaMongoose = new Schema(
   {
-    desc: {
-      type: String,
-      required: true,
+    boilerType: String,
+
+    stdMaintainance: Number,
+
+    technician: {
+      type: [ObjectId],
+      ref: "Technician",
     },
+
+    obs: String,
   },
-  { timestamps: true }
+  { _id: true, timestamps: true }
 );
 
-module.exports = model("BoilerType", boilerTypeSchema);
+module.exports = model("BoilerType", boilerTypeSchemaMongoose);
