@@ -16,7 +16,7 @@ const technicianSchema = Joi.object({
 
   knowledge: Joi.array().items(Joi.string().uppercase()),
 
-  obs: Joi.string(),
+  obs: Joi.string().allow(""),
 });
 
 module.exports = technicianSchema;

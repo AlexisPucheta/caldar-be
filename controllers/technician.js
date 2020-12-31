@@ -27,7 +27,7 @@ exports.createTechnician = async (req, res) => {
       });
     }
 
-    if (newTechnician.services !== undefined) {
+    if (newTechnician.services.length !== 0) {
       const services = await Service.find({ _id: newTechnician.services });
       if (services.length === newTechnician.services.length) {
         services.forEach((service) => {
@@ -51,7 +51,7 @@ exports.createTechnician = async (req, res) => {
       }
     }
 
-    if (newTechnician.knowledge !== undefined) {
+    if (newTechnician.knowledge.length !== 0) {
       const boilerType = await BoilerType.find({
         boilerType: newTechnician.knowledge,
       });
