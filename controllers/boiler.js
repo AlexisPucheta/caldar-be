@@ -10,7 +10,7 @@ exports.createBoiler = async (req, res) => {
     if (req.body.building === "") {
       req.body.building = undefined;
     }
-    
+
     await boilerSchema.validateAsync(req.body);
     const newBoiler = new Boiler({
       building: req.body.building,

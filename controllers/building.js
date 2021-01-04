@@ -9,7 +9,7 @@ exports.createBuilding = async (req, res) => {
     if (req.body.company === "") {
       req.body.company = undefined;
     }
-    
+
     await buildingSchema.validateAsync(req.body);
     const newBuilding = new Building({
       company: req.body.company,

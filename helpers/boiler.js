@@ -12,7 +12,7 @@ const boilerSchema = Joi.object({
 
   installationDate: Joi.date().less("now").allow(""),
 
-  obs: Joi.string().allow(null,""),
+  obs: Joi.string().allow(null, ""),
 
   status: Joi.string()
     .lowercase()
