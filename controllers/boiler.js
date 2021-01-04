@@ -15,6 +15,7 @@ exports.createBoiler = async (req, res) => {
       manufacturingDate: req.body.manufacturingDate,
       installationDate: req.body.installationDate,
       status: req.body.status,
+      obs: req.body.obs,
     });
 
     const boilerType = await BoilerType.find({ boilerType: newBoiler.type });
@@ -132,6 +133,7 @@ exports.updateBoilerById = async (req, res) => {
       manufacturingDate: req.body.manufacturingDate,
       installationDate: req.body.installationDate,
       status: req.body.status,
+      obs: req.body.obs,
     };
 
     const boilerType = await BoilerType.find({

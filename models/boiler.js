@@ -19,6 +19,8 @@ const boilerSchemaMongoose = new Schema(
 
     installationDate: String,
 
+    obs: String,
+
     status: String,
   },
   { _id: true, timestamps: true }

@@ -2,7 +2,7 @@ const Joi = require("joi");
 Joi.objectId = require("joi-objectid")(Joi);
 
 const buildingSchema = Joi.object({
-  company: Joi.objectId(),
+  company: Joi.objectId().allow(""),
 
   name: Joi.string().required(),
 
@@ -16,7 +16,7 @@ const buildingSchema = Joi.object({
 
   email: Joi.string().email().required(),
 
-  obs: Joi.string(),
+  obs: Joi.string().allow(""),
 
   boilers: Joi.array().items(Joi.objectId()),
 });
