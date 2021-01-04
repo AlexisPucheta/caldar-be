@@ -6,6 +6,10 @@ const buildingSchema = require("../helpers/building.js");
 // Create building in the database.
 exports.createBuilding = async (req, res) => {
   try {
+    if (req.body.company === "") {
+      req.body.company = undefined;
+    }
+    
     await buildingSchema.validateAsync(req.body);
     const newBuilding = new Building({
       company: req.body.company,

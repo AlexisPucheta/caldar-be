@@ -16,7 +16,7 @@ const buildingSchema = Joi.object({
 
   email: Joi.string().email().required(),
 
-  obs: Joi.string().allow(""),
+  obs: Joi.string().allow(null,""),
 
   boilers: Joi.array().items(Joi.objectId()),
 });

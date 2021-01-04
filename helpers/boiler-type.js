@@ -8,7 +8,7 @@ const boilerTypeSchema = Joi.object({
 
   technician: Joi.array().items(Joi.objectId()),
 
-  obs: Joi.string(),
+  obs: Joi.string().allow(null,""),
 });
 
 module.exports = boilerTypeSchema;

@@ -2,7 +2,7 @@ const Joi = require("joi");
 Joi.objectId = require("joi-objectid")(Joi);
 
 const boilerSchema = Joi.object({
-  building: Joi.objectId().allow(""),
+  building: Joi.objectId(),
 
   type: Joi.string().length(1).required(),
 
@@ -12,7 +12,7 @@ const boilerSchema = Joi.object({
 
   installationDate: Joi.date().less("now").allow(""),
 
-  obs: Joi.string().allow(""),
+  obs: Joi.string().allow(null,""),
 
   status: Joi.string()
     .lowercase()

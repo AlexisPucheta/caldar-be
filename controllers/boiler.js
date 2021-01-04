@@ -7,6 +7,10 @@ const Service = require("../models/service.js");
 // Create boiler in the database. At least name is required
 exports.createBoiler = async (req, res) => {
   try {
+    if (req.body.building === "") {
+      req.body.building = undefined;
+    }
+    
     await boilerSchema.validateAsync(req.body);
     const newBoiler = new Boiler({
       building: req.body.building,
