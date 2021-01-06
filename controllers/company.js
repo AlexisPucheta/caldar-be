@@ -9,7 +9,7 @@ exports.createCompany = async (req, res) => {
     const newCompany = new Company({
       buildings: req.body.buildings,
       name: req.body.name,
-      address: req.body.adress,
+      address: req.body.address,
       CIN: req.body.CIN,
       zipcode: req.body.zipcode,
       contact: req.body.contact,
@@ -134,7 +134,7 @@ exports.updateCompanyById = async (req, res) => {
     const updatedCompany = {
       buildings: req.body.buildings,
       name: req.body.name,
-      address: req.body.adress,
+      address: req.body.address,
       CIN: req.body.CIN,
       zipcode: req.body.zipcode,
       contact: req.body.contact,
