@@ -28,7 +28,7 @@ exports.createCompany = async (req, res) => {
       });
     }
 
-   const company = await Company.findOne({ CIN: newCompany.CIN });
+   company = await Company.findOne({ CIN: newCompany.CIN });
     if (company !== null) {
       return res.status(400).send({
         msg: `This CIN: ${newCompany.CIN} already exist.`,
