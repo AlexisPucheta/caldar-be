@@ -21,6 +21,8 @@ const companySchemaMongoose = new Schema(
     email: String,
 
     phone: Number,
+
+    obs: String,
   },
   { _id: true, timestamps: true }
 );
