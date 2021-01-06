@@ -5,6 +5,9 @@ const companySchema = require("../helpers/company.js");
 // Create company in the database.
 exports.createCompany = async (req, res) => {
   try {
+    if (req.body.buildings === "") {
+      req.body.buildings = undefined;
+    }
     await companySchema.validateAsync(req.body);
     const newCompany = new Company({
       buildings: req.body.buildings,
@@ -15,16 +18,17 @@ exports.createCompany = async (req, res) => {
       contact: req.body.contact,
       email: req.body.email,
       phone: req.body.phone,
+      obs: req.body.obs,
     });
 
-    let company = await Company.findOne({ name: newCompany.name });
+    const company = await Company.findOne({ name: newCompany.name });
     if (company !== null) {
       return res.status(400).send({
         msg: `This company name: ${newCompany.name} already exist.`,
       });
     }
 
-    company = await Company.findOne({ CIN: newCompany.CIN });
+   const company = await Company.findOne({ CIN: newCompany.CIN });
     if (company !== null) {
       return res.status(400).send({
         msg: `This CIN: ${newCompany.CIN} already exist.`,
@@ -140,6 +144,7 @@ exports.updateCompanyById = async (req, res) => {
       contact: req.body.contact,
       email: req.body.email,
       phone: req.body.phone,
+      obs: req.body.obs,
     };
 
     if (updatedCompany.buildings !== undefined) {
