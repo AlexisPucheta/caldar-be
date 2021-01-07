@@ -21,7 +21,7 @@ exports.createCompany = async (req, res) => {
       obs: req.body.obs,
     });
 
-    const company = await Company.findOne({ name: newCompany.name });
+    let company = await Company.findOne({ name: newCompany.name });
     if (company !== null) {
       return res.status(400).send({
         msg: `This company name: ${newCompany.name} already exist.`,
