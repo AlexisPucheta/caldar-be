@@ -8,6 +8,7 @@ const buildingRouter = require("./building.js");
 const boilerRouter = require("./boiler.js");
 const boilerTypeRouter = require("./boiler-type.js");
 const serviceRouter = require("./service.js");
+// const authRouter = require("./auth.js");
 
 // Use your router
 router.use("/api/technician", technicianRouter);
