@@ -5,6 +5,9 @@ const companySchema = require("../helpers/company.js");
 // Create company in the database.
 exports.createCompany = async (req, res) => {
   try {
+    if (req.body.buildings === "") {
+      req.body.buildings = undefined;
+    }
     await companySchema.validateAsync(req.body);
     const newCompany = new Company({
       buildings: req.body.buildings,
