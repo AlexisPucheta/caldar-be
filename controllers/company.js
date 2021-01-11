@@ -5,17 +5,21 @@ const companySchema = require("../helpers/company.js");
 // Create company in the database.
 exports.createCompany = async (req, res) => {
   try {
+    console.log(req.body);
     await companySchema.validateAsync(req.body);
     const newCompany = new Company({
       buildings: req.body.buildings,
       name: req.body.name,
-      address: req.body.adress,
+      address: req.body.address,
       CIN: req.body.CIN,
       zipcode: req.body.zipcode,
       contact: req.body.contact,
       email: req.body.email,
       phone: req.body.phone,
+      obs: req.body.obs,
     });
+
+    console.log(newCompany);
 
     let company = await Company.findOne({ name: newCompany.name });
     if (company !== null) {
@@ -134,12 +138,13 @@ exports.updateCompanyById = async (req, res) => {
     const updatedCompany = {
       buildings: req.body.buildings,
       name: req.body.name,
-      address: req.body.adress,
+      address: req.body.address,
       CIN: req.body.CIN,
       zipcode: req.body.zipcode,
       contact: req.body.contact,
       email: req.body.email,
       phone: req.body.phone,
+      obs: req.body.obs,
     };
 
     if (updatedCompany.buildings !== undefined) {

@@ -14,9 +14,11 @@ const companySchema = Joi.object({
 
   contact: Joi.string().required(),
 
-  email: Joi.string().required(),
+  email: Joi.string().email().required(),
 
   phone: Joi.number().required(),
+
+  obs: Joi.string().allow(null, ""),
 });
 
 module.exports = companySchema;
