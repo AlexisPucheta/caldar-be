@@ -7,7 +7,7 @@ const boilerTypeSchemaMongoose = new Schema(
 
     stdMaintainance: Number,
 
-    technician: {
+    technicians: {
       type: [ObjectId],
       ref: "Technician",
     },

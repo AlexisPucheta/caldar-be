@@ -9,7 +9,7 @@ exports.createBoilerType = async (req, res) => {
     const newBoilerType = new BoilerType({
       boilerType: req.body.boilerType,
       stdMaintainance: req.body.stdMaintainance,
-      technician: req.body.technician,
+      technicians: req.body.technicians,
       obs: req.body.obs,
     });
 
@@ -22,18 +22,18 @@ exports.createBoilerType = async (req, res) => {
       });
     }
 
-    if (newBoilerType.technician.length !== 0) {
+    if (newBoilerType.technicians.length !== 0) {
       const technicians = await Technician.find({
-        _id: newBoilerType.technician,
+        _id: newBoilerType.technicians,
       });
-      if (technicians.length !== newBoilerType.technician.length) {
+      if (technicians.length !== newBoilerType.technicians.length) {
         return res
           .status(404)
           .send({ msg: "Some of the technicians doesn't exist." });
       }
 
       await Technician.updateMany(
-        { _id: newBoilerType.technician },
+        { _id: newBoilerType.technicians },
         {
           $push: {
             knowledge: newBoilerType.boilerType,
@@ -123,15 +123,15 @@ exports.updateBoilerTypeById = async (req, res) => {
     const updatedBoilerType = {
       boilerType: boilerType.boilerType,
       stdMaintainance: req.body.stdMaintainance,
-      technician: req.body.technician,
+      technicians: req.body.technicians,
       obs: req.body.obs,
     };
 
-    if (updatedBoilerType.technician !== undefined) {
+    if (updatedBoilerType.technicians !== undefined) {
       const technicians = await Technician.find({
-        _id: updatedBoilerType.technician,
+        _id: updatedBoilerType.technicians,
       });
-      if (technicians.length !== updatedBoilerType.technician.length) {
+      if (technicians.length !== updatedBoilerType.technicians.length) {
         return res
           .status(400)
           .send({ msg: "Some of the technicians doesn't exist." });
@@ -143,7 +143,7 @@ exports.updateBoilerTypeById = async (req, res) => {
     });
 
     await Technician.updateMany(
-      { _id: boilerType.technician },
+      { _id: boilerType.technicians },
       {
         $pull: {
           knowledge: boilerType.boilerType,
@@ -152,7 +152,7 @@ exports.updateBoilerTypeById = async (req, res) => {
     );
 
     await Technician.updateMany(
-      { _id: updatedBoilerType.technician },
+      { _id: updatedBoilerType.technicians },
       {
         $push: {
           knowledge: updatedBoilerType.boilerType,

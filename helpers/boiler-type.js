@@ -6,7 +6,7 @@ const boilerTypeSchema = Joi.object({
 
   stdMaintainance: Joi.number().required(),
 
-  technician: Joi.array().items(Joi.objectId()),
+  technicians: Joi.array().items(Joi.objectId()),
 
   obs: Joi.string().allow(null, ""),
 });
